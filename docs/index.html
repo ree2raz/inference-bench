@@ -171,6 +171,34 @@ section.visible { opacity: 1; transform: translateY(0); }
   margin-bottom: 1.5rem;
 }
 
+.powered-by {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--fg-dim);
+  letter-spacing: 0.04em;
+  margin-bottom: 1.25rem;
+}
+
+.powered-by a {
+  color: var(--fg-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.powered-by a:hover {
+  color: var(--accent);
+}
+
+.powered-by svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+  opacity: 0.7;
+}
+
 .hero h1 {
   font-size: 2.6rem;
   font-weight: 700;
@@ -756,6 +784,7 @@ td.best { color: var(--accent); font-weight: 600; }
 .hero h1 { animation: fadeSlideUp 0.5s ease 0.2s both; }
 .hero-sub { animation: fadeSlideUp 0.5s ease 0.35s both; }
 .hero-winners { animation: fadeSlideUp 0.5s ease 0.5s both; }
+.powered-by { animation: fadeSlideUp 0.5s ease 0.15s both; }
 
 /* ---------- STAR FIELD (subtle bg) ---------- */
 .star-field {
@@ -800,6 +829,10 @@ td.best { color: var(--accent); font-weight: 600; }
 <!-- ════════ HERO ════════ -->
 <section class="hero visible" id="overview">
   <div class="hero-badge">Reproducible Benchmark</div>
+  <div class="powered-by">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    Powered by <a href="https://modal.com" target="_blank" rel="noopener">Modal</a> — serverless GPU infra
+  </div>
   <h1>vLLM vs SGLang vs llama.cpp<br><span class="thin">FP16 &amp; AWQ on a single NVIDIA L4</span></h1>
   <p class="hero-sub">
     Head-to-head LLM serving benchmark across five engine configurations, two workload regimes, 
