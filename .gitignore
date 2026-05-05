@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.pyc
+results/raw/
+results/plots/
+*.egg-info/
+.DS_Store
+.hf_cache/

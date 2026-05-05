@@ -1,0 +1,27 @@
+model: "Qwen/Qwen2.5-7B-Instruct"
+gpu: "L4"
+quantization:
+  default: "fp16"
+  variants:
+    vllm: "awq"
+    sglang: "awq"
+    llamacpp: "q4_k_m"
+
+engines:
+  vllm:
+    version: "0.8.5"
+    image: "vllm/vllm-openai:v0.8.5"
+    max_num_seqs: 64
+    quantization_flag: "--quantization awq --enforce-eager"
+    model_awq: "Qwen/Qwen2.5-7B-Instruct-AWQ"
+  sglang:
+    version: "0.4.6"
+    image: "lmsys/sglang:v0.4.6-cu124"
+    max_running_requests: 64
+    quantization_flag: "--quantization awq"
+    model_awq: "Qwen/Qwen2.5-7B-Instruct-AWQ"
+  llamacpp:
+    version: "b5540"
+    gguf_model: "Qwen/Qwen2.5-7B-Instruct-GGUF"
+    gguf_file: "qwen2.5-7b-instruct-q4_k_m.gguf"
+    parallel: 4
