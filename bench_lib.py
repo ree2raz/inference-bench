@@ -221,19 +221,35 @@ QWEN3_AWQ_SGLANG_SERVER_ARGS = [
     "--quantization", "awq",
     "--reasoning-parser", "deepseek-r1",
     "--disable-cuda-graph",
+    "--presence-penalty", "1.5",
 ]
 
-QWEN3_AWQ_SGLANG_SERVER_ARGS = [
-    "python3", "-m", "sglang.launch_server",
-    "--model-path", MODEL_QWEN3_AWQ,
+QWEN3_MOE_VLLM_SERVER_ARGS = [
+    "python3", "-m", "vllm.entrypoints.openai.api_server",
+    "--model", MODEL_QWEN3_MOE,
     "--host", "0.0.0.0",
     "--port", "8000",
-    "--max-running-requests", "32",
+    "--max-num-seqs", "16",
+    "--max-model-len", "4096",
+    "--quantization", "gptq",
+    "--dtype", "auto",
+    "--gpu-memory-utilization", "0.90",
+    "--enable-reasoning",
+    "--reasoning-parser", "deepseek_r1",
+    "--disable-log-requests",
+]
+
+QWEN3_MOE_SGLANG_SERVER_ARGS = [
+    "python3", "-m", "sglang.launch_server",
+    "--model-path", MODEL_QWEN3_MOE,
+    "--host", "0.0.0.0",
+    "--port", "8000",
+    "--max-running-requests", "16",
     "--mem-fraction-static", "0.85",
-    "--quantization", "awq",
+    "--quantization", "gptq",
+    "--max-model-len", "4096",
     "--reasoning-parser", "deepseek-r1",
     "--disable-cuda-graph",
-    "--presence-penalty", "1.5",
 ]
 
 
