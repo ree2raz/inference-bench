@@ -113,11 +113,14 @@ def make_sglang_awq_image():
 def make_sglang_moe_image():
     return (
         modal.Image.from_registry(
-            "lmsysorg/sglang:v0.5.9-cu129-amd64-runtime",
+            "lmsysorg/sglang:v0.4.6-cu124",
             setup_dockerfile_commands=_SYMLINK_PYTHON,
         )
         .entrypoint([])
         .pip_install("httpx>=0.27", "numpy>=1.26")
+        .run_commands(
+            "pip install --upgrade sglang[all]",
+        )
         .env({"HF_HOME": "/hf_cache"})
         .add_local_python_source("bench_lib")
         .add_local_file(_WORKLOAD_LOCAL, remote_path="/opt/prompts/workload.jsonl")
