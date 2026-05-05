@@ -230,7 +230,6 @@ QWEN3_MOE_VLLM_SERVER_ARGS = [
     "--port", "8000",
     "--max-num-seqs", "16",
     "--max-model-len", "4096",
-    "--quantization", "gptq_marlin",
     "--dtype", "auto",
     "--gpu-memory-utilization", "0.90",
     "--enable-reasoning",
@@ -245,8 +244,7 @@ QWEN3_MOE_SGLANG_SERVER_ARGS = [
     "--port", "8000",
     "--max-running-requests", "16",
     "--mem-fraction-static", "0.85",
-    "--quantization", "gptq",
-    "--max-model-len", "4096",
+    "--context-length", "4096",
     "--reasoning-parser", "deepseek-r1",
     "--disable-cuda-graph",
 ]
