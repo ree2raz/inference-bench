@@ -4,7 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Inference Bench — vLLM vs SGLang vs llama.cpp</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <meta name="description" content="Head-to-head LLM serving benchmark: vLLM, SGLang, and llama.cpp with FP16 and AWQ on a single NVIDIA L4 GPU. Reproducducible, open-source, no cherry-picking.">
+  <meta property="og:title" content="Inference Bench — vLLM vs SGLang vs llama.cpp">
+  <meta property="og:description" content="Head-to-head LLM serving benchmark: vLLM, SGLang, and llama.cpp with FP16 and AWQ on a single NVIDIA L4 GPU.">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -877,7 +881,7 @@ td.best { color: var(--accent); font-weight: 600; }
     <div class="version-item sglang">
       <div>
         <div class="engine-name">SGLang</div>
-        <div class="engine-flags">--max-running-req 64 · --mem-frac 0.85</div>
+        <div class="engine-flags">--max-running-req 64 · --mem-frac 0.85 · --disable-cuda-graph</div>
       </div>
       <div class="engine-ver">v0.4.6</div>
     </div>
@@ -1222,6 +1226,18 @@ const DATA = {
       ttft: [null, null, null, null, null],
       latency_p95: [2716, 3910, 27115, 42409, 73360],
       success: [100, 100, 100, 100, 100],
+    },
+    vllm_awq: {
+      throughput: [43.2, 162.6, 549.1, 752.2, 975.6],
+      ttft: [36, 66, 229, 442, 651],
+      latency_p95: [2969, 3274, 3827, 5587, 9440],
+      success: [100, 100, 100, 100, 100],
+    },
+    sglang_awq: {
+      throughput: [8.3, 33.2, 133.4, 261.8, 505.8],
+      ttft: [242, 240, 231, 335, 516],
+      latency_p95: [15496, 15414, 15366, 15734, 16413],
+      success: [100, 100, 100, 100, 100],
     }
   },
   long: {
@@ -1243,17 +1259,32 @@ const DATA = {
       ttft: [null, null, null],
       latency_p95: [14340, 295820, 296989],
       success: [100, 99, 55],
+    },
+    vllm_awq: {
+      throughput: [42.1, 501.2, 893.5],
+      ttft: [41, 228, 700],
+      latency_p95: [12556, 16586, 40953],
+      success: [100, 100, 100],
+    },
+    sglang_awq: {
+      throughput: [8.3, 129.8, 486.9],
+      ttft: [246, 250, 637],
+      latency_p95: [62193, 63512, 68502],
+      success: [100, 100, 100],
     }
   }
 };
 
 const ENGINE_COLORS = {
   vllm: { line: '#3b82f6', bg: 'rgba(59,130,246,0.12)', point: '#60a5fa' },
+  vllm_awq: { line: '#93c5fd', bg: 'rgba(147,197,253,0.12)', point: '#bfdbfe' },
   sglang: { line: '#ef4444', bg: 'rgba(239,68,68,0.12)', point: '#f87171' },
+  sglang_awq: { line: '#fca5a5', bg: 'rgba(252,165,165,0.12)', point: '#fecaca' },
   llamacpp: { line: '#22c55e', bg: 'rgba(34,197,94,0.12)', point: '#4ade80' },
 };
 
-const ENGINE_NAMES = { vllm: 'vLLM', sglang: 'SGLang', llamacpp: 'llama.cpp' };
+const ENGINE_NAMES = { vllm: 'vLLM', vllm_awq: 'vLLM AWQ', sglang: 'SGLang', sglang_awq: 'SGLang AWQ', llamacpp: 'llama.cpp' };
+const ENGINE_ORDER = ['vllm', 'vllm_awq', 'sglang', 'sglang_awq', 'llamacpp'];
 
 // ── CHART DEFAULTS ──
 Chart.defaults.font.family = "'IBM Plex Mono', monospace";
@@ -1268,8 +1299,7 @@ const GRID_OPTS = {
 const TICK_OPTS = { color: '#6b6054', font: { size: 10 } };
 
 function makeDatasets(regime, metric) {
-  const engines = ['vllm', 'sglang', 'llamacpp'];
-  return engines.map(e => ({
+  return ENGINE_ORDER.map(e => ({
     label: ENGINE_NAMES[e],
     data: DATA[regime][e][metric],
     borderColor: ENGINE_COLORS[e].line,
@@ -1443,7 +1473,7 @@ function updateCharts(regime) {
   charts.forEach((chart, i) => {
     const metric = metrics[i];
     chart.data.labels = d.concurrencies;
-    ['vllm', 'sglang', 'llamacpp'].forEach((e, j) => {
+    ENGINE_ORDER.forEach((e, j) => {
       chart.data.datasets[j].data = d[e][metric];
     });
     // adjust x-axis max for long regime
@@ -1456,8 +1486,8 @@ function updateCharts(regime) {
 function renderTable(regime) {
   const d = DATA[regime];
   const concurrencies = d.concurrencies;
-  const engines = ['vllm', 'sglang', 'llamacpp'];
-  const engineLabels = { vllm: 'vLLM', sglang: 'SGLang', llamacpp: 'llama.cpp' };
+  const engines = ENGINE_ORDER;
+  const engineLabels = ENGINE_NAMES;
 
   const rows = [];
 
