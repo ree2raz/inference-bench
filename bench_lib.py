@@ -221,7 +221,6 @@ QWEN3_AWQ_SGLANG_SERVER_ARGS = [
     "--quantization", "awq",
     "--reasoning-parser", "deepseek-r1",
     "--disable-cuda-graph",
-    "--presence-penalty", "1.5",
 ]
 
 QWEN3_MOE_VLLM_SERVER_ARGS = [
@@ -231,7 +230,7 @@ QWEN3_MOE_VLLM_SERVER_ARGS = [
     "--port", "8000",
     "--max-num-seqs", "16",
     "--max-model-len", "4096",
-    "--quantization", "gptq",
+    "--quantization", "gptq_marlin",
     "--dtype", "auto",
     "--gpu-memory-utilization", "0.90",
     "--enable-reasoning",
