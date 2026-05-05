@@ -55,6 +55,10 @@ def aggregate_file(filepath: str) -> dict:
         if r.get("ttft") and r.get("output_tokens", 0) > 1:
             tpot_list.append((r["wall_time"] - r["ttft"]) / (r["output_tokens"] - 1))
 
+    reasoning_tok_list = [r.get("reasoning_tokens", 0) for r in successful]
+    answer_tok_list = [r.get("answer_tokens", 0) for r in successful]
+    ttft_answer_list = [r.get("ttft_answer") for r in successful if r.get("ttft_answer") is not None]
+
     return {
         "engine": engine,
         "regime": regime,
@@ -75,6 +79,9 @@ def aggregate_file(filepath: str) -> dict:
         "latency_p95": round(pct(wall_list, 95), 4),
         "latency_p99": round(pct(wall_list, 99), 4),
         "output_tokens_mean": round(float(np.mean(output_tokens_list)), 1) if output_tokens_list else 0,
+        "reasoning_tokens_mean": round(float(np.mean(reasoning_tok_list)), 1) if reasoning_tok_list else 0,
+        "answer_tokens_mean": round(float(np.mean(answer_tok_list)), 1) if answer_tok_list else 0,
+        "ttft_answer_p50": round(pct(ttft_answer_list, 50), 4) if ttft_answer_list else None,
     }
 
 

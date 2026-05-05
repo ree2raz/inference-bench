@@ -50,6 +50,9 @@ def aggregate_results(results: list[dict]) -> list[dict]:
         lat_p99 = [r["latency_p99"] for r in runs if r.get("latency_p99") is not None]
         success_rate = [r["successful_requests"] / r["total_requests"] for r in runs if r.get("total_requests")]
         per_req = [r["throughput_per_request"] for r in runs if r.get("throughput_per_request")]
+        reasoning_tok = [r["reasoning_tokens_mean"] for r in runs if r.get("reasoning_tokens_mean")]
+        answer_tok = [r["answer_tokens_mean"] for r in runs if r.get("answer_tokens_mean")]
+        ttft_answer = [r["ttft_answer_p50"] for r in runs if r.get("ttft_answer_p50") is not None]
 
         def _med(vals):
             return round(statistics.median(vals), 4) if vals else None
@@ -77,6 +80,9 @@ def aggregate_results(results: list[dict]) -> list[dict]:
             "latency_p99_median": _med(lat_p99),
             "latency_p95_spread": _spread(lat_p95),
             "success_rate_median": _med(success_rate),
+            "reasoning_tokens_mean": _med(reasoning_tok),
+            "answer_tokens_mean": _med(answer_tok),
+            "ttft_answer_p50_median": _med(ttft_answer),
         })
     return rows
 

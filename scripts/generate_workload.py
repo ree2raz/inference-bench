@@ -156,6 +156,40 @@ def _generate_rag_context(topic: str, subtopic: str, target_tokens: int) -> str:
     return "\n\n".join(paragraphs)
 
 
+REASONING_TOPICS = [
+    "A farmer has a wolf, a goat, and a cabbage that he must transport across a river using a boat that can hold only the farmer and one item. If left unattended together, the wolf eats the goat, or the goat eats the cabbage. How can the farmer transport everything safely?",
+    "Prove that the square root of 2 is irrational. Walk through each step of the proof carefully, explaining why each inference is valid.",
+    "Three boxes are labeled 'Apples', 'Oranges', and 'Mixed'. All labels are wrong. You can pick one fruit from one box. How do you determine the correct labels for all three boxes?",
+    "A ball is dropped from a height of 100 meters. Each bounce reaches 60% of the previous height. Derive the total distance traveled and explain the mathematical series involved.",
+    "You have 12 identical-looking coins, one of which is counterfeit (either heavier or lighter). Using a balance scale, what is the minimum number of weighings to identify the counterfeit coin and determine if it's heavier or lighter? Describe the complete algorithm.",
+    "A man has to get a fox, a chicken, and a sack of corn across a river. He has a rowboat that can carry only him and one other thing. If the fox and chicken are left together, the fox eats the chicken. If the chicken and corn are left together, the chicken eats the corn. How does the man do it?",
+    "Solve this logic puzzle: Five houses in a row are each painted a different color. In each house lives a person with a different nationality, pet, drink, and cigarette brand. The Brit lives in the red house, the Swede keeps dogs, the Dane drinks tea, the green house is just left of the white one, the green house's owner drinks coffee, the Pall Mall smoker keeps birds, the yellow house's owner smokes Dunhill, the center house's owner drinks milk, the Norwegian lives in the first house, the Blend smoker lives next to the cat owner, the horse owner lives next to the Dunhill smoker, the Blue Master smoker drinks beer, the German smokes Prince, the Norwegian lives next to the blue house, the Blend smoker has a neighbor who drinks water. Who owns the fish?",
+    "Consider a recursive function f(n) defined as: f(0) = 1, f(1) = 1, f(n) = f(n-1) + f(n-2) for n >= 2. Prove by induction that f(n) < 2^n for all n >= 0.",
+    "You are given two eggs and access to a 100-story building. You need to determine the highest floor from which an egg can be dropped without breaking. What is the minimum number of drops needed in the worst case? Explain your strategy.",
+    "Prove that any map can be colored with at most four colors such that no two adjacent regions share the same color. While the full proof is extremely complex, explain the key ideas and why this theorem is difficult to prove.",
+    "You have a 3-gallon jug and a 5-gallon jug. How do you measure exactly 4 gallons of water? Show all possible solution paths and explain your reasoning.",
+    "A bat and ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost? Most people intuitively answer incorrectly. Explain why the intuitive answer is wrong and derive the correct answer.",
+    "There are 100 prisoners about to be executed. The warden offers them a chance: a room with a light bulb and a switch. Each day, one prisoner is taken to the room. They can toggle the switch or leave it. Before the first visit, they can agree on a strategy. How can one prisoner eventually declare with certainty that all prisoners have visited the room?",
+    "You have a cake and need to divide it into 8 equal pieces with exactly 3 cuts. Each cut must be a straight line. How do you do it? Think about dimensionality.",
+    "Given an array of integers where every element appears twice except for one, find the unique element. Explain the XOR-based solution and prove why it works using properties of XOR.",
+    "There are 25 horses and a race track that can race 5 horses at a time. You have no stopwatch. What is the minimum number of races needed to find the top 3 fastest horses? Walk through the complete strategy.",
+    "You are in a room with two doors. One leads to freedom, the other to death. There are two guards, one at each door. One always tells the truth, the other always lies. You can ask one question to one guard. What question do you ask to find the door to freedom?",
+    "Prove that there are infinitely many prime numbers. Walk through Euclid's proof step by step and explain why the contradiction argument works.",
+    "You have a balance scale and 8 balls. One ball is heavier than the others. What is the minimum number of weighings to find the heavy ball? Generalize to n balls.",
+    "Consider a round-robin tournament with n players where every player plays every other player exactly once. Prove that the sum of all wins equals the sum of all losses. Then show that it's always possible to order the players such that each player beat the next one in the ordering.",
+    "A king decides his kingdom has too many men. He decrees that families must stop having children after their first daughter. What will the eventual gender ratio be? Walk through the probabilistic reasoning carefully.",
+    "You are given a sorted array that has been rotated an unknown number of times. Write an algorithm to find a target element in O(log n) time. Explain why binary search still works and handle the edge cases.",
+    "Two trains are 100 miles apart, traveling toward each other at 50 mph each. A fly starts at the front of one train and flies at 75 mph to the other train, then turns around and repeats. How far does the fly travel before the trains collide? Solve it two different ways.",
+    "You have n switches and n light bulbs in another room. Each switch controls exactly one bulb, but you don't know which. You can flip switches and then enter the bulb room once. How do you determine which switch controls which bulb? The bulbs are initially off and you can touch them.",
+    "Prove that the sum of the first n natural numbers is n(n+1)/2. Use three different proof techniques: induction, pairing, and geometric visualization.",
+    "A group of 10 people want to share a secret such that any 6 of them can reconstruct it, but any 5 cannot. Explain Shamir's Secret Sharing scheme and why polynomial interpolation guarantees these properties.",
+    "You are given 9 coins, one of which is counterfeit (heavier). Using a balance scale, what is the minimum number of weighings to find the counterfeit? Now solve for the case where you don't know if it's heavier or lighter.",
+    "A magical maze has rooms connected by one-way doors. Each room has at least one exit. Prove that there exists a cycle in this maze. Then extend this to prove that in any group of n people, there exist two people who have shaken hands with the same number of others.",
+    "You need to write a function that determines if a string of brackets (containing (), [], {}) is balanced. Walk through the algorithm design, explain why a stack is the right data structure, and prove correctness.",
+    "You are given a linked list that may contain a cycle. Describe Floyd's cycle detection algorithm (tortoise and hare), explain why it works, and derive the meeting point mathematically.",
+]
+
+
 def generate_workload(output_path: str, num_per_regime: int = 100):
     rng = random.Random(42)
     prompts = []
@@ -182,6 +216,15 @@ def generate_workload(output_path: str, num_per_regime: int = 100):
             "max_tokens": 512,
         })
 
+    num_reasoning = 30
+    for i in range(num_reasoning):
+        topic = REASONING_TOPICS[i % len(REASONING_TOPICS)]
+        prompts.append({
+            "regime": "reasoning",
+            "messages": [{"role": "user", "content": topic}],
+            "max_tokens": 8192,
+        })
+
     rng.shuffle(prompts)
 
     with open(output_path, "w") as f:
@@ -190,7 +233,8 @@ def generate_workload(output_path: str, num_per_regime: int = 100):
 
     short_count = sum(1 for p in prompts if p["regime"] == "short")
     long_count = sum(1 for p in prompts if p["regime"] == "long")
-    print(f"Generated {len(prompts)} prompts ({short_count} short, {long_count} long) → {output_path}")
+    reasoning_count = sum(1 for p in prompts if p["regime"] == "reasoning")
+    print(f"Generated {len(prompts)} prompts ({short_count} short, {long_count} long, {reasoning_count} reasoning) → {output_path}")
 
 
 if __name__ == "__main__":

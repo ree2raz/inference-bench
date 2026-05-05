@@ -12,16 +12,25 @@ import os
 
 GPU_TYPE = "L4"
 MODEL_FP16 = "Qwen/Qwen2.5-7B-Instruct"
+MODEL_AWQ = "Qwen/Qwen2.5-7B-Instruct-AWQ"
 MODEL_GGUF_REPO = "Qwen/Qwen2.5-7B-Instruct-GGUF"
 GGUF_FILE = "qwen2.5-7b-instruct-q4_k_m-00001-of-00002.gguf"
 GGUF_FILE_SHARD2 = "qwen2.5-7b-instruct-q4_k_m-00002-of-00002.gguf"
+
+MODEL_QWEN3 = "Qwen/Qwen3-8B"
+MODEL_QWEN3_AWQ = "Qwen/Qwen3-8B-AWQ"
+MODEL_QWEN3_MOE = "Qwen/Qwen3-30B-A3B-GPTQ-Int4"
+
 CONCURRENCY_LEVELS = [1, 4, 16, 32, 64]
 LONG_CONCURRENCY_LEVELS = [1, 16, 64]
+REASONING_CONCURRENCY_LEVELS = [1, 4, 16]
 TEMPERATURE = 0
 MAX_OUTPUT_SHORT = 128
 MAX_OUTPUT_LONG = 512
+MAX_OUTPUT_REASONING = 8192
 REPEATS = 3
 LONG_REPEATS = 1
+REASONING_REPEATS = 1
 SERVER_URL = "http://localhost:8000"
 
 hf_cache = modal.Volume.from_name("inference-bench-hf-cache", create_if_missing=True)
@@ -79,6 +88,28 @@ def make_llamacpp_image():
     )
 
 
+def make_vllm_awq_image():
+    return make_vllm_image()
+
+
+def make_sglang_awq_image():
+    return (
+        modal.Image.from_registry(
+            "lmsysorg/sglang:v0.4.6-cu124",
+            setup_dockerfile_commands=_SYMLINK_PYTHON,
+        )
+        .entrypoint([])
+        .pip_install("httpx>=0.27", "numpy>=1.26")
+        .run_commands(
+            "pip install vllm==0.7.2",
+            "pip install flashinfer-python -i https://flashinfer.ai/whl/cu124/torch2.5",
+        )
+        .env({"HF_HOME": "/hf_cache"})
+        .add_local_python_source("bench_lib")
+        .add_local_file(_WORKLOAD_LOCAL, remote_path="/opt/prompts/workload.jsonl")
+    )
+
+
 def wait_for_server(timeout: int = 300, interval: int = 5):
     import httpx
 
@@ -115,6 +146,94 @@ SGLANG_SERVER_ARGS = [
     "--max-running-requests", "64",
     "--mem-fraction-static", "0.85",
     "--disable-cuda-graph",
+]
+
+VLLM_AWQ_SERVER_ARGS = [
+    "python3", "-m", "vllm.entrypoints.openai.api_server",
+    "--model", MODEL_AWQ,
+    "--host", "0.0.0.0",
+    "--port", "8000",
+    "--max-num-seqs", "64",
+    "--quantization", "awq",
+    "--enforce-eager",
+    "--dtype", "auto",
+    "--gpu-memory-utilization", "0.90",
+    "--disable-log-requests",
+]
+
+SGLANG_AWQ_SERVER_ARGS = [
+    "python3", "-m", "sglang.launch_server",
+    "--model-path", MODEL_AWQ,
+    "--host", "0.0.0.0",
+    "--port", "8000",
+    "--max-running-requests", "64",
+    "--mem-fraction-static", "0.85",
+    "--quantization", "awq",
+    "--disable-cuda-graph",
+]
+
+QWEN3_VLLM_SERVER_ARGS = [
+    "python3", "-m", "vllm.entrypoints.openai.api_server",
+    "--model", MODEL_QWEN3,
+    "--host", "0.0.0.0",
+    "--port", "8000",
+    "--max-num-seqs", "32",
+    "--dtype", "auto",
+    "--gpu-memory-utilization", "0.90",
+    "--enable-reasoning",
+    "--reasoning-parser", "deepseek_r1",
+    "--disable-log-requests",
+]
+
+QWEN3_SGLANG_SERVER_ARGS = [
+    "python3", "-m", "sglang.launch_server",
+    "--model-path", MODEL_QWEN3,
+    "--host", "0.0.0.0",
+    "--port", "8000",
+    "--max-running-requests", "32",
+    "--mem-fraction-static", "0.85",
+    "--reasoning-parser", "deepseek-r1",
+    "--disable-cuda-graph",
+]
+
+QWEN3_AWQ_VLLM_SERVER_ARGS = [
+    "python3", "-m", "vllm.entrypoints.openai.api_server",
+    "--model", MODEL_QWEN3_AWQ,
+    "--host", "0.0.0.0",
+    "--port", "8000",
+    "--max-num-seqs", "32",
+    "--quantization", "awq",
+    "--enforce-eager",
+    "--dtype", "auto",
+    "--gpu-memory-utilization", "0.90",
+    "--enable-reasoning",
+    "--reasoning-parser", "deepseek_r1",
+    "--disable-log-requests",
+]
+
+QWEN3_AWQ_SGLANG_SERVER_ARGS = [
+    "python3", "-m", "sglang.launch_server",
+    "--model-path", MODEL_QWEN3_AWQ,
+    "--host", "0.0.0.0",
+    "--port", "8000",
+    "--max-running-requests", "32",
+    "--mem-fraction-static", "0.85",
+    "--quantization", "awq",
+    "--reasoning-parser", "deepseek-r1",
+    "--disable-cuda-graph",
+]
+
+QWEN3_AWQ_SGLANG_SERVER_ARGS = [
+    "python3", "-m", "sglang.launch_server",
+    "--model-path", MODEL_QWEN3_AWQ,
+    "--host", "0.0.0.0",
+    "--port", "8000",
+    "--max-running-requests", "32",
+    "--mem-fraction-static", "0.85",
+    "--quantization", "awq",
+    "--reasoning-parser", "deepseek-r1",
+    "--disable-cuda-graph",
+    "--presence-penalty", "1.5",
 ]
 
 
@@ -154,6 +273,7 @@ def run_benchmark_impl(
     regime: str,
     concurrency: int,
     repeat: int,
+    model_name: str | None = None,
 ) -> dict:
     import httpx
     import numpy as np
@@ -166,11 +286,15 @@ def run_benchmark_impl(
             if p["regime"] == regime:
                 prompts.append(p)
 
-    max_tokens = MAX_OUTPUT_SHORT if regime == "short" else MAX_OUTPUT_LONG
+    max_tokens = MAX_OUTPUT_SHORT if regime == "short" else (MAX_OUTPUT_LONG if regime == "long" else MAX_OUTPUT_REASONING)
     warmup_prompts = prompts[:concurrency * 2]
     measure_prompts = prompts[:max(concurrency * 30, len(prompts))]
-    model_name = "default" if engine == "llamacpp" else MODEL_FP16
+    if model_name is None:
+        model_name = "default" if engine == "llamacpp" else MODEL_FP16
     supports_stream_usage = engine != "llamacpp"
+    is_reasoning = regime == "reasoning"
+    measure_count = min(len(measure_prompts), 10 if is_reasoning else len(measure_prompts))
+    measure_prompts = measure_prompts[:measure_count]
 
     async def _send_streaming(client: httpx.AsyncClient, prompt: dict) -> dict:
         payload = {
@@ -185,13 +309,16 @@ def run_benchmark_impl(
 
         t_start = time.perf_counter()
         first_token_time = None
+        first_answer_time = None
         output_tokens = 0
+        reasoning_tokens = 0
+        answer_tokens = 0
         try:
             async with client.stream(
                 "POST",
                 f"{SERVER_URL}/v1/chat/completions",
                 json=payload,
-                timeout=300,
+                timeout=600,
             ) as resp:
                 if resp.status_code != 200:
                     body = await resp.aread()
@@ -211,21 +338,43 @@ def run_benchmark_impl(
                         chunk = json.loads(data_str)
                         if chunk.get("choices"):
                             delta = chunk["choices"][0].get("delta", {})
+                            reasoning_content = delta.get("reasoning_content", "")
                             content = delta.get("content", "")
+                            if reasoning_content and first_token_time is None:
+                                first_token_time = time.perf_counter()
+                                reasoning_tokens += 1
+                            elif reasoning_content:
+                                reasoning_tokens += 1
                             if content and first_token_time is None:
                                 first_token_time = time.perf_counter()
+                                answer_tokens += 1
+                            elif content:
+                                if first_answer_time is None:
+                                    first_answer_time = time.perf_counter()
+                                answer_tokens += 1
                         usage = chunk.get("usage")
                         if usage:
                             output_tokens = usage.get("completion_tokens", 0)
+                            if usage.get("completion_tokens_details"):
+                                cd = usage["completion_tokens_details"]
+                                reasoning_tokens = cd.get("reasoning_tokens", reasoning_tokens)
                     except json.JSONDecodeError:
                         pass
             t_end = time.perf_counter()
             ttft = (first_token_time - t_start) if first_token_time else None
+            ttft_answer = (first_answer_time - t_start) if first_answer_time else None
+            if answer_tokens == 0 and reasoning_tokens > 0:
+                answer_tokens = output_tokens - reasoning_tokens if output_tokens > reasoning_tokens else 0
+            elif output_tokens > 0 and reasoning_tokens == 0 and answer_tokens > 0:
+                reasoning_tokens = max(0, output_tokens - answer_tokens)
             return {
                 "success": True,
                 "wall_time": t_end - t_start,
                 "ttft": ttft,
+                "ttft_answer": ttft_answer,
                 "output_tokens": output_tokens,
+                "reasoning_tokens": reasoning_tokens,
+                "answer_tokens": answer_tokens,
             }
         except Exception as e:
             t_end = time.perf_counter()
@@ -295,6 +444,9 @@ def run_benchmark_impl(
 
     output_tokens_list = [r["output_tokens"] for r in successful if r.get("output_tokens")]
     ttft_list = [r["ttft"] for r in successful if r.get("ttft") is not None]
+    ttft_answer_list = [r["ttft_answer"] for r in successful if r.get("ttft_answer") is not None]
+    reasoning_tokens_list = [r.get("reasoning_tokens", 0) for r in successful]
+    answer_tokens_list = [r.get("answer_tokens", 0) for r in successful]
     wall_list = [r["wall_time"] for r in successful]
     total_output_tokens = sum(output_tokens_list)
     throughput = total_output_tokens / wall_seconds if wall_seconds > 0 else 0
@@ -334,6 +486,9 @@ def run_benchmark_impl(
         "latency_p95": round(pct(wall_list, 95), 4),
         "latency_p99": round(pct(wall_list, 99), 4),
         "output_tokens_mean": round(float(np.mean(output_tokens_list)), 1) if output_tokens_list else 0,
+        "reasoning_tokens_mean": round(float(np.mean(reasoning_tokens_list)), 1) if reasoning_tokens_list else 0,
+        "answer_tokens_mean": round(float(np.mean(answer_tokens_list)), 1) if answer_tokens_list else 0,
+        "ttft_answer_p50": round(pct(ttft_answer_list, 50), 4) if ttft_answer_list else None,
     }
 
     run_id = f"{engine}_{regime}_c{concurrency}_r{repeat}"
