@@ -1,0 +1,100 @@
+{"success": true, "wall_time": 71.08503770399966, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 72.2500676110003, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 91.53356757599977, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 93.08511907000047, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 94.45592259600016, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 232.0841377020006, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 138.21912261599937, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 186.4741385090001, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 116.40763797300042, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 114.82279707499947, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 255.6023134090001, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 163.159698638, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 161.58815512599995, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 139.803890143, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 209.65875563900045, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 276.140777437, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 95.52476260399999, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 297.0567656839994, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 184.902437533, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 117.76185751599951, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 118.89185175800048, "ttft": null, "output_tokens": 512}
+{"success": false, "error": "", "wall_time": 300.1691517270001}
+{"success": true, "wall_time": 208.09300548600004, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 141.1864563959998, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 142.28256761800003, "ttft": null, "output_tokens": 512}
+{"success": false, "error": "", "wall_time": 300.16764125400005}
+{"success": true, "wall_time": 230.46870379600023, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 164.51733185300054, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 165.60823152000012, "ttft": null, "output_tokens": 512}
+{"success": false, "error": "", "wall_time": 300.16199848999986}
+{"success": true, "wall_time": 253.97183270700043, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 187.7846670230001, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 188.86300667199976, "ttft": null, "output_tokens": 512}
+{"success": false, "error": "", "wall_time": 300.15995628200017}
+{"success": true, "wall_time": 276.04575434599974, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 210.9994182219998, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 212.14066566400015, "ttft": null, "output_tokens": 512}
+{"success": false, "error": "", "wall_time": 300.15644565}
+{"success": true, "wall_time": 296.96021693999955, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 233.42403508000007, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 234.57423167100023, "ttft": null, "output_tokens": 512}
+{"success": false, "error": "", "wall_time": 300.16296468899964}
+{"success": false, "error": "", "wall_time": 300.1627642430003}
+{"success": true, "wall_time": 255.60186485600025, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 256.8630392210007, "ttft": null, "output_tokens": 512}
+{"success": false, "error": "", "wall_time": 300.1601440980003}
+{"success": false, "error": "", "wall_time": 300.15949716900013}
+{"success": true, "wall_time": 277.5290617700002, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 277.66742988399983, "ttft": null, "output_tokens": 512}
+{"success": false, "error": "", "wall_time": 300.1567708100001}
+{"success": false, "error": "", "wall_time": 300.1564947730003}
+{"success": true, "wall_time": 298.46637472900056, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 299.86477934600043, "ttft": null, "output_tokens": 512}
+{"success": false, "error": "", "wall_time": 300.15712313099993}
+{"success": false, "error": "", "wall_time": 300.1565536039998}
+{"success": false, "error": "", "wall_time": 301.06399275900003}
+{"success": false, "error": "", "wall_time": 300.15537184000004}
+{"success": false, "error": "", "wall_time": 300.15504770000007}
+{"success": false, "error": "", "wall_time": 300.1542913179992}
+{"success": false, "error": "", "wall_time": 300.1537715629993}
+{"success": false, "error": "", "wall_time": 300.1532947800006}
+{"success": false, "error": "", "wall_time": 300.1527257329999}
+{"success": false, "error": "", "wall_time": 300.15185420800026}
+{"success": false, "error": "", "wall_time": 300.15151376799986}
+{"success": false, "error": "", "wall_time": 300.00820309200026}
+{"success": true, "wall_time": 253.2411364720001, "ttft": null, "output_tokens": 512}
+{"success": false, "error": "", "wall_time": 300.00868384299974}
+{"success": false, "error": "", "wall_time": 300.0061096399995}
+{"success": true, "wall_time": 280.14720040999964, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 229.95097579200046, "ttft": null, "output_tokens": 512}
+{"success": false, "error": "", "wall_time": 300.0156688750003}
+{"success": false, "error": "", "wall_time": 300.0089492970001}
+{"success": true, "wall_time": 277.38179453499924, "ttft": null, "output_tokens": 512}
+{"success": false, "error": "", "wall_time": 300.00673852599994}
+{"success": false, "error": "", "wall_time": 300.0049553539993}
+{"success": true, "wall_time": 184.38385375899998, "ttft": null, "output_tokens": 512}
+{"success": false, "error": "", "wall_time": 300.0055599090001}
+{"success": false, "error": "", "wall_time": 300.0091336710002}
+{"success": false, "error": "", "wall_time": 300.0065170630005}
+{"success": false, "error": "", "wall_time": 300.00699600499956}
+{"success": true, "wall_time": 183.83978107999974, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 185.39043680800023, "ttft": null, "output_tokens": 512}
+{"success": false, "error": "", "wall_time": 300.00732055700064}
+{"success": true, "wall_time": 186.6752346559997, "ttft": null, "output_tokens": 512}
+{"success": false, "error": "", "wall_time": 300.00624774599964}
+{"success": true, "wall_time": 207.80494626000018, "ttft": null, "output_tokens": 512}
+{"success": true, "wall_time": 189.98741968300055, "ttft": null, "output_tokens": 512}
+{"success": false, "error": "", "wall_time": 300.0076807180003}
+{"success": false, "error": "", "wall_time": 300.01039713799946}
+{"success": true, "wall_time": 205.00964729499992, "ttft": null, "output_tokens": 512}
+{"success": false, "error": "", "wall_time": 300.004845249}
+{"success": true, "wall_time": 188.30093114600004, "ttft": null, "output_tokens": 512}
+{"success": false, "error": "", "wall_time": 300.0068238419999}
+{"success": false, "error": "", "wall_time": 300.0072668140001}
+{"success": false, "error": "", "wall_time": 300.00546832800046}
+{"success": false, "error": "", "wall_time": 300.0115177279995}
+{"success": false, "error": "", "wall_time": 300.0049784289995}
+{"success": false, "error": "", "wall_time": 300.00611750900043}
+{"success": false, "error": "", "wall_time": 300.0059310209999}
+{"success": true, "wall_time": 188.50573578299918, "ttft": null, "output_tokens": 512}

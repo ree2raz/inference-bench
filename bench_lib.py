@@ -110,6 +110,20 @@ def make_sglang_awq_image():
     )
 
 
+def make_sglang_moe_image():
+    return (
+        modal.Image.from_registry(
+            "lmsysorg/sglang:v0.5.9-cu129-amd64-runtime",
+            setup_dockerfile_commands=_SYMLINK_PYTHON,
+        )
+        .entrypoint([])
+        .pip_install("httpx>=0.27", "numpy>=1.26")
+        .env({"HF_HOME": "/hf_cache"})
+        .add_local_python_source("bench_lib")
+        .add_local_file(_WORKLOAD_LOCAL, remote_path="/opt/prompts/workload.jsonl")
+    )
+
+
 def wait_for_server(timeout: int = 300, interval: int = 5):
     import httpx
 
@@ -178,6 +192,7 @@ QWEN3_VLLM_SERVER_ARGS = [
     "--host", "0.0.0.0",
     "--port", "8000",
     "--max-num-seqs", "32",
+    "--max-model-len", "16384",
     "--dtype", "auto",
     "--gpu-memory-utilization", "0.90",
     "--enable-reasoning",
@@ -202,6 +217,7 @@ QWEN3_AWQ_VLLM_SERVER_ARGS = [
     "--host", "0.0.0.0",
     "--port", "8000",
     "--max-num-seqs", "32",
+    "--max-model-len", "16384",
     "--quantization", "awq",
     "--enforce-eager",
     "--dtype", "auto",

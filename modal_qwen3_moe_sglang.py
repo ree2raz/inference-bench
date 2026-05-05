@@ -9,7 +9,7 @@ import time
 from bench_lib import (
     GPU_TYPE, MODEL_QWEN3_MOE, REASONING_CONCURRENCY_LEVELS, REASONING_REPEATS,
     hf_cache, results_vol,
-    make_sglang_image,
+    make_sglang_moe_image,
     wait_for_server, QWEN3_MOE_SGLANG_SERVER_ARGS,
     run_benchmark_impl, print_result_line, write_summary,
 )
@@ -18,7 +18,7 @@ app = modal.App("inference-bench-qwen3-moe-sglang")
 
 
 @app.cls(
-    image=make_sglang_image(),
+    image=make_sglang_moe_image(),
     gpu=GPU_TYPE,
     timeout=60 * 180,
     scaledown_window=60,
