@@ -1,6 +1,6 @@
-# inference-bench
+# Inference Bench — vLLM vs SGLang vs llama.cpp
 
-Head-to-head benchmark of **vLLM**, **SGLang**, and **llama.cpp** serving Qwen2.5-7B-Instruct on a single NVIDIA L4 GPU (via Modal). Tests concurrent-request sweeps across two workload regimes (short chat-style and long RAG-style), measuring throughput, TTFT/TPOT, tail latency (p95/p99), and request success rate. 3 repeats per config (short regime) or 1 repeat (long regime), median + spread reported.
+Reproducible head-to-head LLM serving benchmark: **vLLM**, **SGLang**, and **llama.cpp** on a single NVIDIA L4 GPU (via Modal). Tests concurrent-request sweeps across two workload regimes (short chat-style and long RAG-style), measuring throughput, TTFT/TPOT, tail latency (p95/p99), and request success rate. 3 repeats per config (short regime) or 1 repeat (long regime), median + spread reported.
 
 **Headline finding:** _SGLang delivers the highest throughput at all concurrency levels (up to +10% over vLLM), while vLLM has the lowest TTFT at low concurrency (~70ms vs ~120ms for SGLang at c=1). llama.cpp with Q4_K_M quantization excels at single-request latency (2.7s vs 7.5s for FP16 engines at c=1 short) but throughput degrades sharply beyond c=4 due to limited parallelism (`--parallel 4`)._
 
