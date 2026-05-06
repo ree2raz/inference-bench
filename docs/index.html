@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inference Bench — vLLM vs SGLang vs llama.cpp</title>
-  <meta name="description" content="Head-to-head LLM serving benchmark: vLLM, SGLang, and llama.cpp with FP16 and AWQ on a single NVIDIA L4 GPU. Reproducducible, open-source, no cherry-picking.">
+<title>Inference Bench — vLLM vs SGLang vs llama.cpp (FP16, AWQ, Reasoning)</title>
+  <meta name="description" content="Head-to-head LLM serving benchmark: vLLM, SGLang, and llama.cpp with FP16, AWQ, and reasoning workloads on a single NVIDIA L4 GPU. Reproducible, open-source, no cherry-picking.">
   <meta property="og:title" content="Inference Bench — vLLM vs SGLang vs llama.cpp">
-  <meta property="og:description" content="Head-to-head LLM serving benchmark: vLLM, SGLang, and llama.cpp with FP16 and AWQ on a single NVIDIA L4 GPU.">
+  <meta property="og:description" content="Head-to-head LLM serving benchmark: vLLM, SGLang, and llama.cpp with FP16, AWQ, and reasoning workloads on a single NVIDIA L4 GPU.">
   <meta property="og:type" content="website">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,6 +35,10 @@
   --llamacpp-bg: rgba(34, 197, 94, 0.08);
   --vllm-awq-bg: rgba(147, 197, 253, 0.08);
   --sglang-awq-bg: rgba(252, 165, 165, 0.08);
+  --qwen3-vllm: #818cf8;
+  --qwen3-sglang: #fb923c;
+  --qwen3-awq-vllm: #a78bfa;
+  --qwen3-awq-sglang: #fdba74;
   --font-sans: 'IBM Plex Sans', sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
   --fs-root: 17px;
@@ -245,6 +249,10 @@ section.visible { opacity: 1; transform: translateY(0); }
 .winner-block.llamacpp::before { background: var(--llamacpp); }
 .winner-block.vllm_awq::before { background: var(--vllm-awq); }
 .winner-block.sglang_awq::before { background: var(--sglang-awq); }
+.winner-block.qwen3_vllm::before { background: var(--qwen3-vllm); }
+.winner-block.qwen3_sglang::before { background: var(--qwen3-sglang); }
+.winner-block.qwen3_awq_vllm::before { background: var(--qwen3-awq-vllm); }
+.winner-block.qwen3_awq_sglang::before { background: var(--qwen3-awq-sglang); }
 
 .winner-label {
   font-family: var(--font-mono);
@@ -267,6 +275,10 @@ section.visible { opacity: 1; transform: translateY(0); }
 .winner-block.llamacpp .winner-engine { color: var(--llamacpp); }
 .winner-block.vllm_awq .winner-engine { color: var(--vllm-awq); }
 .winner-block.sglang_awq .winner-engine { color: var(--sglang-awq); }
+.winner-block.qwen3_vllm .winner-engine { color: var(--qwen3-vllm); }
+.winner-block.qwen3_sglang .winner-engine { color: var(--qwen3-sglang); }
+.winner-block.qwen3_awq_vllm .winner-engine { color: var(--qwen3-awq-vllm); }
+.winner-block.qwen3_awq_sglang .winner-engine { color: var(--qwen3-awq-sglang); }
 
 .winner-detail {
   font-family: var(--font-mono);
@@ -359,6 +371,10 @@ section.visible { opacity: 1; transform: translateY(0); }
 .version-item.llamacpp .engine-name { color: var(--llamacpp); }
 .version-item.vllm_awq .engine-name { color: var(--vllm-awq); }
 .version-item.sglang_awq .engine-name { color: var(--sglang-awq); }
+.version-item.qwen3_vllm .engine-name { color: var(--qwen3-vllm); }
+.version-item.qwen3_sglang .engine-name { color: var(--qwen3-sglang); }
+.version-item.qwen3_awq_vllm .engine-name { color: var(--qwen3-awq-vllm); }
+.version-item.qwen3_awq_sglang .engine-name { color: var(--qwen3-awq-sglang); }
 
 .version-item .engine-ver {
   font-family: var(--font-mono);
@@ -665,6 +681,10 @@ tbody tr.sglang td:first-child { color: var(--sglang); }
 tbody tr.llamacpp td:first-child { color: var(--llamacpp); }
 tbody tr.vllm_awq td:first-child { color: var(--vllm-awq); }
 tbody tr.sglang_awq td:first-child { color: var(--sglang-awq); }
+tbody tr.qwen3_vllm td:first-child { color: var(--qwen3-vllm); }
+tbody tr.qwen3_sglang td:first-child { color: var(--qwen3-sglang); }
+tbody tr.qwen3_awq_vllm td:first-child { color: var(--qwen3-awq-vllm); }
+tbody tr.qwen3_awq_sglang td:first-child { color: var(--qwen3-awq-sglang); }
 
 .metric-group td {
   background: var(--bg-raised);
@@ -766,9 +786,9 @@ td.best { color: var(--accent); font-weight: 600; }
 /* ---------- RESPONSIVE ---------- */
 @media (max-width: 768px) {
   .hero h1 { font-size: 1.9rem; }
-  .hero-winners { grid-template-columns: 1fr; }
+  .hero-winners { grid-template-columns: 1fr !important; }
   .method-grid { grid-template-columns: 1fr; }
-  .versions-row { grid-template-columns: repeat(2, 1fr); }
+  .versions-row { grid-template-columns: repeat(2, 1fr) !important; }
   .charts-grid { grid-template-columns: 1fr; }
   .limitations-grid { grid-template-columns: 1fr; }
   .page { padding: 0 1.25rem; }
@@ -833,13 +853,14 @@ td.best { color: var(--accent); font-weight: 600; }
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
     Powered by <a href="https://modal.com" target="_blank" rel="noopener">Modal</a> — serverless GPU infra
   </div>
-  <h1>vLLM vs SGLang vs llama.cpp<br><span class="thin">FP16 &amp; AWQ on a single NVIDIA L4</span></h1>
+  <h1>vLLM vs SGLang vs llama.cpp<br><span class="thin">FP16, AWQ &amp; Reasoning on a single NVIDIA L4</span></h1>
   <p class="hero-sub">
-    Head-to-head LLM serving benchmark across five engine configurations, two workload regimes, 
-    and concurrency levels from 1 to 64. FP16 and AWQ quantization tested on the same hardware.
-    All runs on Modal cloud GPU with Qwen2.5-7B-Instruct. No cherry-picking — the numbers speak.
+    Head-to-head LLM serving benchmark across five engine configurations, three workload regimes 
+    (short, long, reasoning), and concurrency levels from 1 to 64. FP16 and AWQ quantization 
+    tested on the same hardware, plus Qwen3 reasoning with thinking tokens.
+    All runs on Modal cloud GPU. No cherry-picking — the numbers speak.
   </p>
-  <div class="hero-winners" style="grid-template-columns: repeat(5, 1fr);">
+  <div class="hero-winners" style="grid-template-columns: repeat(6, 1fr);">
     <div class="winner-block vllm_awq">
       <div class="winner-label">AWQ throughput king</div>
       <div class="winner-engine">vLLM AWQ</div>
@@ -864,6 +885,11 @@ td.best { color: var(--accent); font-weight: 600; }
       <div class="winner-label">AWQ efficiency</div>
       <div class="winner-engine">SGLang AWQ</div>
       <div class="winner-detail">506 tok/s @ c=64 · 3.8 GB VRAM</div>
+    </div>
+    <div class="winner-block qwen3_awq_vllm">
+      <div class="winner-label">Reasoning throughput</div>
+      <div class="winner-engine">Qwen3 AWQ vLLM</div>
+      <div class="winner-detail">345 tok/s @ c=16 · 14x total output</div>
     </div>
   </div>
 </section>
@@ -890,6 +916,7 @@ td.best { color: var(--accent); font-weight: 600; }
         <dt>FP16</dt><dd>Qwen2.5-7B-Instruct (~15 GB)</dd>
         <dt>AWQ</dt><dd>Qwen2.5-7B-Instruct-AWQ (~5.2 GB)</dd>
         <dt>GGUF</dt><dd>Q4_K_M quantization (~4.4 GB)</dd>
+        <dt>Reasoning</dt><dd>Qwen3-8B + Qwen3-8B-AWQ</dd>
       </dl>
     </div>
     <div class="method-card">
@@ -897,8 +924,9 @@ td.best { color: var(--accent); font-weight: 600; }
       <dl>
         <dt>Short</dt><dd>≤256 in, 128 out (chat)</dd>
         <dt>Long</dt><dd>≤2048 in, 512 out (RAG)</dd>
+        <dt>Reasoning</dt><dd>≤256 in, 8192 out (thinking)</dd>
         <dt>Sampling</dt><dd>Greedy (temp=0)</dd>
-        <dt>Repeats</dt><dd>3x short, 1x long</dd>
+        <dt>Repeats</dt><dd>3x short, 1x long, 1x reasoning</dd>
       </dl>
     </div>
   </div>
@@ -940,6 +968,36 @@ td.best { color: var(--accent); font-weight: 600; }
       <div class="engine-ver">v0.4.6</div>
     </div>
   </div>
+  <div class="versions-row" style="margin-top:0.75rem; grid-template-columns: repeat(4, 1fr);">
+    <div class="version-item qwen3_vllm">
+      <div>
+        <div class="engine-name">Qwen3 vLLM</div>
+        <div class="engine-flags">--reasoning-parser deepseek_r1 --max-model-len 16384</div>
+      </div>
+      <div class="engine-ver">v0.8.5</div>
+    </div>
+    <div class="version-item qwen3_sglang">
+      <div>
+        <div class="engine-name">Qwen3 SGLang</div>
+        <div class="engine-flags">--reasoning-parser deepseek-r1 --context-length 16384</div>
+      </div>
+      <div class="engine-ver">v0.4.6</div>
+    </div>
+    <div class="version-item qwen3_awq_vllm">
+      <div>
+        <div class="engine-name">Qwen3 AWQ vLLM</div>
+        <div class="engine-flags">--quantization awq --reasoning-parser deepseek_r1 --max-model-len 16384</div>
+      </div>
+      <div class="engine-ver">v0.8.5</div>
+    </div>
+    <div class="version-item qwen3_awq_sglang">
+      <div>
+        <div class="engine-name">Qwen3 AWQ SGLang</div>
+        <div class="engine-flags">--quantization awq --reasoning-parser deepseek-r1 --context-length 16384</div>
+      </div>
+      <div class="engine-ver">v0.4.6</div>
+    </div>
+  </div>
 </section>
 
 <!-- ════════ PROCESS ════════ -->
@@ -960,7 +1018,7 @@ td.best { color: var(--accent); font-weight: 600; }
         <dt>Long regime</dt>
         <dd>10 domain pairs (distributed systems + consensus, ML + transformers, OS + scheduling, etc.) each paired with one of 10 analytical questions. Synthetic RAG context (~1200 tokens) padded to ~1800 input tokens, 512 max output tokens. Models retrieval-augmented generation workloads.</dd>
       </dl>
-      <p class="step-note">100 prompts per regime, committed to <code>prompts/workload.jsonl</code>. Fully deterministic — same seed, same prompts, same order.</p>
+      <p class="step-note">100 prompts per regime, committed to <code>prompts/workload.jsonl</code>. Fully deterministic — same seed, same prompts, same order. Reasoning regime adds 30 multi-step reasoning prompts for Qwen3 thinking models.</p>
     </div>
 
     <div class="process-step">
@@ -981,7 +1039,7 @@ td.best { color: var(--accent); font-weight: 600; }
         <li>Each request is a streaming OpenAI Chat Completions call (non-streaming for llama.cpp, which lacks <code>stream_options.include_usage</code>).</li>
         <li>Record per-request: wall time, TTFT (first content token), TPOT (inter-token latency), output token count, success/failure.</li>
       </ol>
-      <p class="step-note">Short regime: 3 repeats per config. Long regime: 1 repeat. Median and spread computed across repeats.</p>
+      <p class="step-note">Short regime: 3 repeats per config. Long regime: 1 repeat. Reasoning regime: 1 repeat, 10 measure requests per config. Median and spread computed across repeats.</p>
     </div>
 
     <div class="process-step">
@@ -1014,6 +1072,7 @@ td.best { color: var(--accent); font-weight: 600; }
   <div class="regime-toggle">
     <button class="regime-btn active" data-regime="short">Short regime</button>
     <button class="regime-btn" data-regime="long">Long regime</button>
+    <button class="regime-btn" data-regime="reasoning">Reasoning</button>
   </div>
 
   <div class="charts-grid">
@@ -1056,6 +1115,12 @@ modal run modal_llamacpp.py
 # AWQ quantization variants
 modal run modal_vllm_awq.py
 modal run modal_sglang_awq.py
+
+# Qwen3 reasoning benchmarks
+modal run modal_qwen3_vllm.py -d
+modal run modal_qwen3_sglang.py -d
+modal run modal_qwen3_awq_vllm.py -d
+modal run modal_qwen3_awq_sglang.py -d
 
 # Generate charts + tables
 make report</code></pre></div>
@@ -1118,17 +1183,18 @@ make bench-all-parallel</code></pre></div>
 ├── modal_llamacpp.py          # llama.cpp (standalone app)
 ├── modal_vllm_awq.py          # vLLM AWQ (standalone app)
 ├── modal_sglang_awq.py        # SGLang AWQ (standalone app)
+├── modal_qwen3_vllm.py        # Qwen3 vLLM reasoning (standalone)
+├── modal_qwen3_sglang.py      # Qwen3 SGLang reasoning (standalone)
+├── modal_qwen3_awq_vllm.py    # Qwen3 AWQ vLLM reasoning (standalone)
+├── modal_qwen3_awq_sglang.py  # Qwen3 AWQ SGLang reasoning (standalone)
 ├── modal_app.py               # orchestrator (all FP16 engines)
 ├── scripts/
 │   ├── generate_workload.py   # prompt generation
-│   ├── collect_metrics.py     # JSONL → summary.csv
+│   ├── reaggregate.py         # raw JSONL → summary
+│   ├── collect_metrics.py     # summary → CSV
 │   └── plot_results.py        # CSV → charts
 ├── prompts/
-│   └── workload.jsonl          # 200 prompts (committed)
-├── configs/
-│   ├── engines.yaml            # model, versions, flags
-│   ├── workload_short.yaml
-│   └── workload_long.yaml
+│   └── workload.jsonl          # 230 prompts (committed)
 ├── results/
 │   ├── raw/                    # per-run JSONL
 │   ├── summary.jsonl
@@ -1166,6 +1232,18 @@ make bench-all-parallel</code></pre></div>
     <li>
       <h4>Long regime amplifies differences</h4>
       <p>At c=64 long, SGLang's 840 tok/s is 8% faster than vLLM's 777 tok/s, and SGLang's p95 latency (40 s) is 9% lower. llama.cpp struggles with long sequences at high concurrency — only 55% success rate at c=64.</p>
+    </li>
+    <li>
+      <h4>AWQ quantization on vLLM is a free lunch</h4>
+      <p>vLLM AWQ delivers 43 tok/s at c=1 short — 2.5x the FP16 throughput — while using only 5.2 GB VRAM vs 15 GB. At c=64, it hits 976 tok/s (+17% over FP16 vLLM's 831). AWQ on vLLM is the best single-GPU value proposition.</p>
+    </li>
+    <li>
+      <h4>Reasoning workloads expose engine differences</h4>
+      <p>With Qwen3-8B generating ~6,000 thinking tokens per request, AWQ vLLM dominates at 345 tok/s at c=16 — 2.4x faster than FP16 SGLang (147 tok/s). AWQ's memory savings become critical when KV caches must hold 8K+ token sequences. SGLang AWQ degraded to 8 tok/s at c=1 (torch 2.5.1 compatibility issue), while FP16 SGLang dropped to 90% success at c=16.</p>
+    </li>
+    <li>
+      <h4>TTFT to answer is the real metric for reasoning models</h4>
+      <p>First content token arrives in ~150-400 ms, but the first <em>answer</em> token (after thinking) takes 145-664 seconds depending on engine and concurrency. Qwen3 AWQ vLLM at c=4 delivers the answer in 145 s — 4.6x faster than Qwen3 SGLang at c=16 (664 s). For thinking models, "time to useful output" dominates user experience.</p>
     </li>
   </ol>
 </section>
@@ -1231,7 +1309,7 @@ make bench-all-parallel</code></pre></div>
 
 <!-- ════════ FOOTER ════════ -->
 <div class="footer">
-  <span>Apache 2.0 · Qwen2.5-7B-Instruct · NVIDIA L4 via Modal</span>
+  <span>Apache 2.0 · Qwen2.5-7B + Qwen3-8B · NVIDIA L4 via Modal</span>
   <a href="https://github.com/ree2raz/inference-bench">github.com/ree2raz/inference-bench</a>
 </div>
 
@@ -1305,8 +1383,50 @@ const DATA = {
       latency_p95: [62193, 63512, 68502],
       success: [100, 100, 100],
     }
+  },
+  reasoning: {
+    concurrencies: [1, 4, 16],
+    qwen3_vllm: {
+      throughput: [15.4, 54.8, null],
+      ttft: [152, 233, null],
+      latency_p95: [530787, 607757, null],
+      success: [100, 100, null],
+      reasoning_tokens: [6511, 6215, null],
+      answer_tokens: [421, 264, null],
+      ttft_answer: [389794, 201528, null],
+    },
+    qwen3_sglang: {
+      throughput: [15.8, 55.8, 147.0],
+      ttft: [198, 283, 394],
+      latency_p95: [522640, 596713, 1074663],
+      success: [100, 100, 90],
+      reasoning_tokens: [5261, 5729, 6383],
+      answer_tokens: [615, 427, 412],
+      ttft_answer: [288250, 297755, 663659],
+    },
+    qwen3_awq_vllm: {
+      throughput: [25.0, 99.2, 345.5],
+      ttft: [113, 136, 525],
+      latency_p95: [338287, 334121, 386999],
+      success: [100, 100, 100],
+      reasoning_tokens: [6134, 6241, 6170],
+      answer_tokens: [409, 349, 402],
+      ttft_answer: [165628, 145234, 266382],
+    },
+    qwen3_awq_sglang: {
+      throughput: [8.0, null, null],
+      ttft: [377, null, null],
+      latency_p95: [1020481, null, null],
+      success: [100, null, null],
+      reasoning_tokens: [6642, null, null],
+      answer_tokens: [254, null, null],
+      ttft_answer: [423611, null, null],
+    }
   }
 };
+
+const SHORT_LONG_ENGINES = ['vllm', 'vllm_awq', 'sglang', 'sglang_awq', 'llamacpp'];
+const REASONING_ENGINES = ['qwen3_vllm', 'qwen3_awq_vllm', 'qwen3_sglang', 'qwen3_awq_sglang'];
 
 const ENGINE_COLORS = {
   vllm: { line: '#3b82f6', bg: 'rgba(59,130,246,0.12)', point: '#60a5fa' },
@@ -1314,10 +1434,16 @@ const ENGINE_COLORS = {
   sglang: { line: '#ef4444', bg: 'rgba(239,68,68,0.12)', point: '#f87171' },
   sglang_awq: { line: '#fca5a5', bg: 'rgba(252,165,165,0.12)', point: '#fecaca' },
   llamacpp: { line: '#22c55e', bg: 'rgba(34,197,94,0.12)', point: '#4ade80' },
+  qwen3_vllm: { line: '#818cf8', bg: 'rgba(129,140,248,0.12)', point: '#a5b4fc' },
+  qwen3_sglang: { line: '#fb923c', bg: 'rgba(251,146,60,0.12)', point: '#fdba74' },
+  qwen3_awq_vllm: { line: '#a78bfa', bg: 'rgba(167,139,250,0.12)', point: '#c4b5fd' },
+  qwen3_awq_sglang: { line: '#fdba74', bg: 'rgba(253,186,116,0.12)', point: '#fed7aa' },
 };
 
-const ENGINE_NAMES = { vllm: 'vLLM', vllm_awq: 'vLLM AWQ', sglang: 'SGLang', sglang_awq: 'SGLang AWQ', llamacpp: 'llama.cpp' };
-const ENGINE_ORDER = ['vllm', 'vllm_awq', 'sglang', 'sglang_awq', 'llamacpp'];
+const ENGINE_NAMES = {
+  vllm: 'vLLM', vllm_awq: 'vLLM AWQ', sglang: 'SGLang', sglang_awq: 'SGLang AWQ', llamacpp: 'llama.cpp',
+  qwen3_vllm: 'Qwen3 vLLM', qwen3_awq_vllm: 'Qwen3 AWQ vLLM', qwen3_sglang: 'Qwen3 SGLang', qwen3_awq_sglang: 'Qwen3 AWQ SGLang'
+};
 
 // ── CHART DEFAULTS ──
 Chart.defaults.font.family = "'IBM Plex Mono', monospace";
@@ -1331,8 +1457,13 @@ const GRID_OPTS = {
 };
 const TICK_OPTS = { color: '#6b6054', font: { size: 10 } };
 
+function getEngineOrder(regime) {
+  return regime === 'reasoning' ? REASONING_ENGINES : SHORT_LONG_ENGINES;
+}
+
 function makeDatasets(regime, metric) {
-  return ENGINE_ORDER.map(e => ({
+  const engines = getEngineOrder(regime);
+  return engines.map(e => ({
     label: ENGINE_NAMES[e],
     data: DATA[regime][e][metric],
     borderColor: ENGINE_COLORS[e].line,
@@ -1374,117 +1505,89 @@ function baseScales(regime) {
 // ── INSTANTIATE CHARTS ──
 let currentRegime = 'short';
 
-const chartThroughput = new Chart(document.getElementById('chart-throughput'), {
-  type: 'line',
-  data: {
-    labels: DATA.short.concurrencies,
-    datasets: makeDatasets('short', 'throughput'),
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: true,
-    aspectRatio: 2.8,
-    interaction: { mode: 'index', intersect: false },
-    scales: {
-      ...baseScales('short'),
-      y: {
-        ...baseScales('short').y,
-        title: { display: true, text: 'Throughput (output tok/s)', color: '#9a8e7f', font: { size: 11 } },
-        beginAtZero: true,
-      }
-    },
-    plugins: {
-      legend: { labels: { usePointStyle: true, padding: 20, font: { size: 11 } } },
-      tooltip: {
-        backgroundColor: '#242019',
-        borderColor: '#3d362d',
-        borderWidth: 1,
-        titleFont: { family: "'IBM Plex Sans'" },
-        bodyFont: { family: "'IBM Plex Mono'", size: 11 },
-        padding: 10,
+function createThroughputChart(regime) {
+  const canvas = document.getElementById('chart-throughput');
+  return new Chart(canvas, {
+    type: 'line',
+    data: { labels: DATA[regime].concurrencies, datasets: makeDatasets(regime, 'throughput') },
+    options: {
+      responsive: true, maintainAspectRatio: true, aspectRatio: 2.8,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        ...baseScales(regime),
+        y: { ...baseScales(regime).y, title: { display: true, text: 'Throughput (output tok/s)', color: '#9a8e7f', font: { size: 11 } }, beginAtZero: true }
+      },
+      plugins: {
+        legend: { labels: { usePointStyle: true, padding: 20, font: { size: 11 } } },
+        tooltip: { backgroundColor: '#242019', borderColor: '#3d362d', borderWidth: 1, titleFont: { family: "'IBM Plex Sans'" }, bodyFont: { family: "'IBM Plex Mono'", size: 11 }, padding: 10 }
       }
     }
-  }
-});
+  });
+}
 
-const chartTTFT = new Chart(document.getElementById('chart-ttft'), {
-  type: 'line',
-  data: {
-    labels: DATA.short.concurrencies,
-    datasets: makeDatasets('short', 'ttft'),
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: true,
-    aspectRatio: 1.6,
-    interaction: { mode: 'index', intersect: false },
-    scales: {
-      ...baseScales('short'),
-      y: {
-        ...baseScales('short').y,
-        title: { display: true, text: 'TTFT p50 (ms)', color: '#9a8e7f', font: { size: 11 } },
-        beginAtZero: true,
-      }
-    },
-    plugins: {
-      legend: { labels: { usePointStyle: true, padding: 20, font: { size: 11 } } },
-      tooltip: {
-        backgroundColor: '#242019',
-        borderColor: '#3d362d',
-        borderWidth: 1,
-        titleFont: { family: "'IBM Plex Sans'" },
-        bodyFont: { family: "'IBM Plex Mono'", size: 11 },
-        padding: 10,
-        callbacks: {
-          label: function(ctx) {
-            if (ctx.raw === null) return ctx.dataset.label + ': N/A (non-streaming)';
-            return ctx.dataset.label + ': ' + ctx.raw + ' ms';
+function createTTFTChart(regime) {
+  const canvas = document.getElementById('chart-ttft');
+  return new Chart(canvas, {
+    type: 'line',
+    data: { labels: DATA[regime].concurrencies, datasets: makeDatasets(regime, 'ttft') },
+    options: {
+      responsive: true, maintainAspectRatio: true, aspectRatio: 1.6,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        ...baseScales(regime),
+        y: { ...baseScales(regime).y, title: { display: true, text: 'TTFT p50 (ms)', color: '#9a8e7f', font: { size: 11 } }, beginAtZero: true }
+      },
+      plugins: {
+        legend: { labels: { usePointStyle: true, padding: 20, font: { size: 11 } } },
+        tooltip: {
+          backgroundColor: '#242019', borderColor: '#3d362d', borderWidth: 1,
+          titleFont: { family: "'IBM Plex Sans'" }, bodyFont: { family: "'IBM Plex Mono'", size: 11 }, padding: 10,
+          callbacks: {
+            label: function(ctx) {
+              if (ctx.raw === null) return ctx.dataset.label + ': N/A (non-streaming)';
+              return ctx.dataset.label + ': ' + ctx.raw + ' ms';
+            }
           }
         }
       }
     }
-  }
-});
+  });
+}
 
-const chartLatency = new Chart(document.getElementById('chart-latency'), {
-  type: 'line',
-  data: {
-    labels: DATA.short.concurrencies,
-    datasets: makeDatasets('short', 'latency_p95'),
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: true,
-    aspectRatio: 1.6,
-    interaction: { mode: 'index', intersect: false },
-    scales: {
-      ...baseScales('short'),
-      y: {
-        ...baseScales('short').y,
-        title: { display: true, text: 'E2E Latency p95 (ms)', color: '#9a8e7f', font: { size: 11 } },
-        beginAtZero: true,
-      }
-    },
-    plugins: {
-      legend: { labels: { usePointStyle: true, padding: 20, font: { size: 11 } } },
-      tooltip: {
-        backgroundColor: '#242019',
-        borderColor: '#3d362d',
-        borderWidth: 1,
-        titleFont: { family: "'IBM Plex Sans'" },
-        bodyFont: { family: "'IBM Plex Mono'", size: 11 },
-        padding: 10,
-        callbacks: {
-          label: function(ctx) {
-            const v = ctx.raw;
-            if (v >= 1000) return ctx.dataset.label + ': ' + (v / 1000).toFixed(1) + ' s';
-            return ctx.dataset.label + ': ' + v + ' ms';
+function createLatencyChart(regime) {
+  const canvas = document.getElementById('chart-latency');
+  return new Chart(canvas, {
+    type: 'line',
+    data: { labels: DATA[regime].concurrencies, datasets: makeDatasets(regime, 'latency_p95') },
+    options: {
+      responsive: true, maintainAspectRatio: true, aspectRatio: 1.6,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        ...baseScales(regime),
+        y: { ...baseScales(regime).y, title: { display: true, text: 'E2E Latency p95 (ms)', color: '#9a8e7f', font: { size: 11 } }, beginAtZero: true }
+      },
+      plugins: {
+        legend: { labels: { usePointStyle: true, padding: 20, font: { size: 11 } } },
+        tooltip: {
+          backgroundColor: '#242019', borderColor: '#3d362d', borderWidth: 1,
+          titleFont: { family: "'IBM Plex Sans'" }, bodyFont: { family: "'IBM Plex Mono'", size: 11 }, padding: 10,
+          callbacks: {
+            label: function(ctx) {
+              const v = ctx.raw;
+              if (v === null) return ctx.dataset.label + ': —';
+              if (v >= 1000) return ctx.dataset.label + ': ' + (v / 1000).toFixed(1) + ' s';
+              return ctx.dataset.label + ': ' + v + ' ms';
+            }
           }
         }
       }
     }
-  }
-});
+  });
+}
+
+let chartThroughput = createThroughputChart('short');
+let chartTTFT = createTTFTChart('short');
+let chartLatency = createLatencyChart('short');
 
 const charts = [chartThroughput, chartTTFT, chartLatency];
 const metrics = ['throughput', 'ttft', 'latency_p95'];
@@ -1502,65 +1605,90 @@ document.querySelectorAll('.regime-btn').forEach(btn => {
 });
 
 function updateCharts(regime) {
-  const d = DATA[regime];
-  charts.forEach((chart, i) => {
-    const metric = metrics[i];
-    chart.data.labels = d.concurrencies;
-    ENGINE_ORDER.forEach((e, j) => {
-      chart.data.datasets[j].data = d[e][metric];
-    });
-    // adjust x-axis max for long regime
-    chart.options.scales.x.max = regime === 'long' ? 80 : 80;
-    chart.update('active');
-  });
+  charts.forEach(c => c.destroy());
+  chartThroughput = createThroughputChart(regime);
+  chartTTFT = createTTFTChart(regime);
+  chartLatency = createLatencyChart(regime);
+  charts[0] = chartThroughput;
+  charts[1] = chartTTFT;
+  charts[2] = chartLatency;
 }
 
 // ── DATA TABLE ──
 function renderTable(regime) {
   const d = DATA[regime];
   const concurrencies = d.concurrencies;
-  const engines = ENGINE_ORDER;
+  const engines = getEngineOrder(regime);
   const engineLabels = ENGINE_NAMES;
+  const isReasoning = regime === 'reasoning';
 
   const rows = [];
 
-  // Throughput section
   rows.push({ group: 'Throughput (tok/s)' });
   engines.forEach(e => {
     const cells = concurrencies.map((c, i) => {
       const v = d[e].throughput[i];
-      return v !== null ? v.toFixed(1) : '—';
+      return v !== null && v !== undefined ? v.toFixed(1) : '—';
     });
     rows.push({ engine: e, cells });
   });
 
-  // TTFT section
   rows.push({ group: 'TTFT p50 (ms)' });
   engines.forEach(e => {
     const cells = concurrencies.map((c, i) => {
       const v = d[e].ttft[i];
-      return v !== null ? v.toFixed(0) : 'N/A';
+      return v !== null && v !== undefined ? v.toFixed(0) : 'N/A';
     });
     rows.push({ engine: e, cells });
   });
 
-  // Latency p95 section
-  rows.push({ group: 'E2E Latency p95 (ms)' });
+  if (isReasoning) {
+    rows.push({ group: 'TTFT to Answer p50 (ms)' });
+    engines.forEach(e => {
+      const cells = concurrencies.map((c, i) => {
+        const v = d[e].ttft_answer[i];
+        if (v === null || v === undefined) return '—';
+        if (v >= 1000) return (v / 1000).toFixed(1) + ' s';
+        return v.toFixed(0);
+      });
+      rows.push({ engine: e, cells });
+    });
+
+    rows.push({ group: 'Reasoning Tokens (mean)' });
+    engines.forEach(e => {
+      const cells = concurrencies.map((c, i) => {
+        const v = d[e].reasoning_tokens[i];
+        return v !== null && v !== undefined ? v.toFixed(0) : '—';
+      });
+      rows.push({ engine: e, cells });
+    });
+
+    rows.push({ group: 'Answer Tokens (mean)' });
+    engines.forEach(e => {
+      const cells = concurrencies.map((c, i) => {
+        const v = d[e].answer_tokens[i];
+        return v !== null && v !== undefined ? v.toFixed(0) : '—';
+      });
+      rows.push({ engine: e, cells });
+    });
+  }
+
+  rows.push({ group: 'E2E Latency p95' });
   engines.forEach(e => {
     const cells = concurrencies.map((c, i) => {
       const v = d[e].latency_p95[i];
-      if (v === null) return '—';
+      if (v === null || v === undefined) return '—';
       if (v >= 1000) return (v / 1000).toFixed(1) + ' s';
-      return v.toFixed(0);
+      return v.toFixed(0) + ' ms';
     });
     rows.push({ engine: e, cells });
   });
 
-  // Success rate
   rows.push({ group: 'Success rate' });
   engines.forEach(e => {
     const cells = concurrencies.map((c, i) => {
       const v = d[e].success[i];
+      if (v === null || v === undefined) return '<td>—</td>';
       const cls = v < 100 ? ' class="warn"' : '';
       return `<td${cls}>${v}%</td>`;
     });

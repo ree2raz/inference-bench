@@ -22,7 +22,7 @@ def pct(data, p):
 
 def aggregate_file(filepath: str) -> dict:
     fname = os.path.basename(filepath)
-    m = re.match(r"(\w+)_(\w+)_c(\d+)_r(\d+)\.jsonl", fname)
+    m = re.match(r"(.+?)_(short|long|reasoning)_c(\d+)_r(\d+)\.jsonl", fname)
     if not m:
         return None
 
