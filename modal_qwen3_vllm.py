@@ -26,7 +26,7 @@ def _already_done(engine: str, regime: str, concurrency: int, repeat: int) -> bo
 @app.cls(
     image=make_vllm_image(),
     gpu=GPU_TYPE,
-    timeout=60 * 180,
+    timeout=60 * 360,
     scaledown_window=60,
     volumes={"/hf_cache": hf_cache, "/results": results_vol},
 )

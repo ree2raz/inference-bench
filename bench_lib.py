@@ -350,7 +350,7 @@ def run_benchmark_impl(
                 "POST",
                 f"{SERVER_URL}/v1/chat/completions",
                 json=payload,
-                timeout=600,
+                timeout=1800,
             ) as resp:
                 if resp.status_code != 200:
                     body = await resp.aread()

@@ -20,7 +20,7 @@ app = modal.App("inference-bench-qwen3-awq-sglang")
 @app.cls(
     image=make_sglang_awq_image(),
     gpu=GPU_TYPE,
-    timeout=60 * 180,
+    timeout=60 * 360,
     scaledown_window=60,
     volumes={"/hf_cache": hf_cache, "/results": results_vol},
 )
