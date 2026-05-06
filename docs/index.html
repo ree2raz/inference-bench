@@ -427,123 +427,21 @@ section.visible { opacity: 1; transform: translateY(0); }
   background: var(--bg-surface);
 }
 
-/* ---------- PROCESS SECTION ---------- */
-.process-grid {
+/* ---------- VALIDATION SECTION ---------- */
+.valid-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
 }
 
-.process-step {
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-raised);
-  padding: 1.5rem;
-  border-radius: 2px;
-  position: relative;
-  padding-left: 4rem;
-}
-
-.step-num {
-  position: absolute;
-  top: 1.5rem;
-  left: 1.25rem;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--accent);
-  letter-spacing: 0.04em;
-}
-
-.process-step h3 {
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.process-step p {
-  font-size: 0.82rem;
-  color: var(--fg-muted);
-  line-height: 1.6;
-  margin-bottom: 0.5rem;
-}
-
-.process-step dl {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.25rem 0.75rem;
-  font-size: 0.8rem;
-  margin: 0.5rem 0;
-}
-
-.process-step dt {
-  color: var(--fg-dim);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.process-step dd {
-  color: var(--fg-muted);
-  line-height: 1.55;
-}
-
-.process-step dl.tight { gap: 0.15rem 0.75rem; }
-
-.process-step code {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  background: var(--bg-surface);
-  padding: 0.1rem 0.35rem;
-  border-radius: 2px;
-  color: var(--fg);
-}
-
-.step-note {
-  margin-top: 0.75rem !important;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--border-subtle);
-  font-size: 0.75rem !important;
-  color: var(--fg-dim) !important;
-}
-
-.process-step ol {
-  margin: 0.5rem 0;
-  padding-left: 1.25rem;
-  font-size: 0.8rem;
-  color: var(--fg-muted);
-  line-height: 1.6;
-}
-
-.process-step ol li { margin-bottom: 0.25rem; }
-.process-step ol code {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  background: var(--bg-surface);
-  padding: 0.1rem 0.35rem;
-  border-radius: 2px;
-  color: var(--fg);
-}
-
-@media (max-width: 768px) {
-  .process-grid { grid-template-columns: 1fr; }
-}
-
-/* ---------- REPRODUCE SECTION ---------- */
-.reproduce-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-}
-
-.reproduce-block {
+.valid-block {
   border: 1px solid var(--border-subtle);
   background: var(--bg-raised);
   padding: 1.5rem;
   border-radius: 2px;
 }
 
-.reproduce-block h3 {
+.valid-block h3 {
   font-family: var(--font-mono);
   font-size: 0.72rem;
   font-weight: 500;
@@ -553,16 +451,16 @@ section.visible { opacity: 1; transform: translateY(0); }
   margin-bottom: 0.75rem;
 }
 
-.reproduce-block p {
+.valid-block p {
   font-size: 0.82rem;
   color: var(--fg-muted);
   line-height: 1.6;
   margin-bottom: 0.5rem;
 }
 
-.reproduce-block p:last-child { margin-bottom: 0; }
+.valid-block p:last-child { margin-bottom: 0; }
 
-.reproduce-block code {
+.valid-block code {
   font-family: var(--font-mono);
   font-size: 0.72rem;
   background: var(--bg-surface);
@@ -595,13 +493,10 @@ section.visible { opacity: 1; transform: translateY(0); }
   color: inherit;
 }
 
-.reproduce-block.full-width {
+.valid-block.full-width {
   grid-column: 1 / -1;
 }
 
-@media (max-width: 768px) {
-  .reproduce-grid { grid-template-columns: 1fr; }
-}
 
 /* ---------- CHARTS ---------- */
 .charts-grid {
@@ -834,10 +729,9 @@ td.best { color: var(--accent); font-weight: 600; }
     <div class="topnav-links">
       <a href="#recommendations">Winners</a>
       <a href="#findings">Findings</a>
-      <a href="#methodology">Methodology</a>
-      <a href="#process">Process</a>
+      <a href="#validation">Validated</a>
       <a href="#results">Results</a>
-      <a href="#reproduce">Reproduce</a>
+      <a href="#methodology">Methodology</a>
       <a href="#limitations">Limitations</a>
     </div>
   </div>
@@ -938,38 +832,96 @@ td.best { color: var(--accent); font-weight: 600; }
 
   <ol class="findings-list">
     <li>
-      <h4>SGLang leads throughput at every concurrency level</h4>
-      <p>At c=64 short, SGLang hits 914 tok/s vs vLLM's 831 tok/s (+10%). The gap holds in the long regime (840 vs 777 tok/s). Radix attention provides consistent per-token overhead regardless of batch size.</p>
-    </li>
-    <li>
-      <h4>vLLM has the lowest TTFT at low concurrency</h4>
-      <p>At c=1 short, vLLM TTFT is 70 ms vs SGLang's 119 ms — 42% faster first-token response. This advantage erodes at high concurrency as vLLM's TTFT grows faster with load.</p>
-    </li>
-    <li>
-      <h4>llama.cpp (Q4_K_M) is fastest at c=1 but degrades beyond c=4</h4>
-      <p>At c=1 short, llama.cpp achieves 47 tok/s with 2.7 s p95 latency — nearly 3x the throughput and 2.8x faster E2E than the FP16 engines. This comes from Q4's reduced compute. However, limited parallelism (--parallel 4) means throughput plateaus around 190 tok/s at c=64.</p>
-    </li>
-    <li>
-      <h4>Per-request throughput is nearly constant for vLLM/SGLang</h4>
-      <p>Both maintain ~13–17 tok/s per-request regardless of concurrency, indicating effective continuous batching. llama.cpp's per-request throughput drops sharply — from 47 to 2.9 tok/s at c=64.</p>
-    </li>
-    <li>
-      <h4>Long regime amplifies differences</h4>
-      <p>At c=64 long, SGLang's 840 tok/s is 8% faster than vLLM's 777 tok/s, and SGLang's p95 latency (40 s) is 9% lower. llama.cpp struggles with long sequences at high concurrency — only 55% success rate at c=64.</p>
+      <h4>SGLang leads throughput; vLLM leads first-token latency</h4>
+      <p>At c=64 short, SGLang hits 914 tok/s vs vLLM's 831 tok/s (+10%). But at c=1, vLLM's TTFT is 70 ms vs SGLang's 119 ms (42% faster first token). The tradeoff: SGLang for aggregate throughput, vLLM for interactive responsiveness. Both maintain ~13-17 tok/s per-request regardless of concurrency, confirming effective continuous batching.</p>
     </li>
     <li>
       <h4>AWQ quantization on vLLM is a free lunch</h4>
-      <p>vLLM AWQ delivers 43 tok/s at c=1 short — 2.5x the FP16 throughput — while using only 5.2 GB VRAM vs 15 GB. At c=64, it hits 976 tok/s (+17% over FP16 vLLM's 831). AWQ on vLLM is the best single-GPU value proposition.</p>
+      <p>vLLM AWQ delivers 43 tok/s at c=1 (2.5x FP16) while using only 5.2 GB VRAM vs 15 GB. At c=64, it hits 976 tok/s (+17% over FP16 vLLM). AWQ's memory savings become critical for reasoning workloads where KV caches hold 8K+ token sequences — AWQ vLLM reaches 345 tok/s at c=16, 2.4x faster than FP16 SGLang (147 tok/s). The one exception: SGLang AWQ suffers a torch 2.5.1 compatibility issue, degrading to 8 tok/s at c=1.</p>
     </li>
     <li>
-      <h4>Reasoning workloads expose engine differences</h4>
-      <p>With Qwen3-8B generating ~6,000 thinking tokens per request, AWQ vLLM dominates at 345 tok/s at c=16 — 2.4x faster than FP16 SGLang (147 tok/s). AWQ's memory savings become critical when KV caches must hold 8K+ token sequences. SGLang AWQ degraded to 8 tok/s at c=1 (torch 2.5.1 compatibility issue), while FP16 SGLang dropped to 90% success at c=16.</p>
+      <h4>llama.cpp wins at c=1, loses at scale</h4>
+      <p>At c=1 short, Q4_K_M achieves 47 tok/s with 2.7 s p95 latency (2.8x faster E2E than FP16 engines). But limited parallelism (<code>--parallel 4</code>) means throughput plateaus at 190 tok/s by c=64, and long-regime success rate drops to 55%. Best for edge, embedded, and low-concurrency use cases where its ~4.4 GB footprint matters.</p>
     </li>
     <li>
-      <h4>TTFT to answer is the real metric for reasoning models</h4>
-      <p>First content token arrives in ~150-400 ms, but the first <em>answer</em> token (after thinking) takes 145-664 seconds depending on engine and concurrency. Qwen3 AWQ vLLM at c=4 delivers the answer in 145 s — 4.6x faster than Qwen3 SGLang at c=16 (664 s). For thinking models, "time to useful output" dominates user experience.</p>
+      <h4>Reasoning workloads change the metric</h4>
+      <p>With Qwen3-8B generating ~6,000 thinking tokens per request, first <em>answer</em> token (after thinking) takes 145-664 seconds. Qwen3 AWQ vLLM at c=4 delivers the answer in 145 s — 4.6x faster than Qwen3 SGLang at c=16 (664 s). For thinking models, "time to useful output" is the metric that matters, not TTFT.</p>
+    </li>
+    <li>
+      <h4>Long regime amplifies every difference</h4>
+      <p>At c=64 long, SGLang's 840 tok/s is 8% faster than vLLM's 777 tok/s, with 9% lower p95 latency (40 s vs 44 s). llama.cpp drops to 55% success. Longer sequences stress KV cache management, batching efficiency, and memory bandwidth — making engine choice more consequential.</p>
     </li>
   </ol>
+</section>
+
+<!-- ════════ VALIDATED BY BENCHMARKS ════════ -->
+<section id="validation">
+  <div class="section-head">
+    <h2>Validated by Real Benchmarks</h2>
+    <p>The <a href="https://llm-cost.rituraj.info" style="color:var(--accent)">LLM Deploy Cost Calculator</a> predicts throughput from GPU specs. These benchmarks measure what actually happens when you run the code. Same hardware, same model — theory vs practice.</p>
+  </div>
+
+  <div class="valid-grid">
+    <div class="valid-block">
+      <h3>Decode throughput (Qwen2.5-7B on L4, c=1)</h3>
+      <p>The calculator models decode as memory-bandwidth-bound: <code>throughput = HBM_bandwidth / (params * bytes_per_param)</code>.</p>
+      <table class="method-card" style="width:100%;border:none;padding:0">
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border-subtle)">
+            <td style="padding:0.4rem 0;color:var(--fg-dim);font-family:var(--font-mono);font-size:0.75rem">FP16 (vLLM)</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right">21.4 tok/s</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right;color:var(--vllm)">17.1 tok/s</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.72rem;text-align:right;color:var(--fg-muted)">80%</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-subtle)">
+            <td style="padding:0.4rem 0;color:var(--fg-dim);font-family:var(--font-mono);font-size:0.75rem">AWQ 4-bit (vLLM)</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right">85.4 tok/s</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right;color:var(--vllm-awq)">43.2 tok/s</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.72rem;text-align:right;color:var(--fg-muted)">51%</td>
+          </tr>
+          <tr>
+            <td style="padding:0.4rem 0;color:var(--fg-dim);font-family:var(--font-mono);font-size:0.75rem"></td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.68rem;text-align:right;color:var(--fg-dim)">Theoretical</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.68rem;text-align:right;color:var(--fg-dim)">Measured</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.68rem;text-align:right;color:var(--fg-dim)">Efficiency</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>FP16 achieves 80% of theoretical bandwidth — kernel overhead, attention computation, and KV cache reads account for the gap. AWQ drops to 51% because dequantization and irregular memory access patterns reduce effective bandwidth utilization.</p>
+    </div>
+
+    <div class="valid-block">
+      <h3>Aggregate throughput (c=64, short regime)</h3>
+      <p>At high concurrency, throughput is limited by batch scheduling, KV cache pressure, and CUDA graph fragmentation.</p>
+      <table class="method-card" style="width:100%;border:none;padding:0">
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border-subtle)">
+            <td style="padding:0.4rem 0;color:var(--fg-dim);font-family:var(--font-mono);font-size:0.75rem">FP16 (vLLM)</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right">1,294</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right;color:var(--vllm)">831</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.72rem;text-align:right;color:var(--fg-muted)">64%</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-subtle)">
+            <td style="padding:0.4rem 0;color:var(--fg-dim);font-family:var(--font-mono);font-size:0.75rem">FP16 (SGLang)</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right">1,294</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right;color:var(--sglang)">914</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.72rem;text-align:right;color:var(--fg-muted)">71%</td>
+          </tr>
+          <tr>
+            <td style="padding:0.4rem 0;color:var(--fg-dim);font-family:var(--font-mono);font-size:0.75rem"></td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.68rem;text-align:right;color:var(--fg-dim)">Theoretical</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.68rem;text-align:right;color:var(--fg-dim)">Measured</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.68rem;text-align:right;color:var(--fg-dim)">Efficiency</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>SGLang's RadixAttention achieves 71% of theoretical at c=64, vs vLLM's 64% — the 7-point gap explains SGLang's consistent throughput advantage. The calculator's "no continuous batching efficiency" limitation is real: engines achieve 64-71% of ideal at high concurrency.</p>
+    </div>
+  </div>
+
+  <div class="valid-block full-width" style="margin-top:1.25rem">
+    <p style="font-size:0.82rem;color:var(--fg-muted)">This comparison uses the same throughput model from the <a href="https://llm-cost.rituraj.info" style="color:var(--accent)">LLM Deploy Cost Calculator</a>, with L4 specs (31 TFLOPS, 300 GB/s HBM), Qwen2.5-7B (7B params, GQA, 28 layers, 4 KV heads), and MFU=0.35. The "Theoretical" column is what the calculator predicts; the "Measured" column is what inference-bench recorded on the same GPU. <a href="https://github.com/ree2raz/inference-bench" style="color:var(--fg-muted)">Full benchmark data on GitHub</a>.</p>
+  </div>
 </section>
 
 <!-- ════════ METHODOLOGY ════════ -->
@@ -1078,67 +1030,6 @@ td.best { color: var(--accent); font-weight: 600; }
   </div>
 </section>
 
-<!-- ════════ PROCESS ════════ -->
-<section id="process">
-  <div class="section-head">
-    <h2>Benchmark Process</h2>
-    <p>How prompts are generated, how measurements are taken, and what the pipeline looks like end to end.</p>
-  </div>
-
-  <div class="process-grid">
-    <div class="process-step">
-      <div class="step-num">01</div>
-      <h3>Prompt Generation</h3>
-      <p>Synthetic prompts generated deterministically (seed=42) from two template families:</p>
-      <dl>
-        <dt>Short regime</dt>
-        <dd>50 CS/ systems topics (mutex vs semaphore, CAP theorem, Raft consensus, Bloom filters, etc.) as single-turn questions. ~200 input tokens, 128 max output tokens. Models conversational chat workloads.</dd>
-        <dt>Long regime</dt>
-        <dd>10 domain pairs (distributed systems + consensus, ML + transformers, OS + scheduling, etc.) each paired with one of 10 analytical questions. Synthetic RAG context (~1200 tokens) padded to ~1800 input tokens, 512 max output tokens. Models retrieval-augmented generation workloads.</dd>
-      </dl>
-      <p class="step-note">100 prompts per regime, committed to <code>prompts/workload.jsonl</code>. Fully deterministic — same seed, same prompts, same order. Reasoning regime adds 30 multi-step reasoning prompts for Qwen3 thinking models.</p>
-    </div>
-
-    <div class="process-step">
-      <div class="step-num">02</div>
-      <h3>Server Startup &amp; Warmup</h3>
-      <p>Each engine is launched inside a Modal container with its respective serving flags. Client and server are colocated in the same container to eliminate network variance.</p>
-      <p>Before measurement, a warmup phase fires <code>2 × concurrency</code> requests to prefill KV caches and stabilize JIT compilation / CUDA graphs.</p>
-      <p class="step-note">Colocation understates real-world TTFT by ~5–20 ms (no network hop). This is documented but not subtracted.</p>
-    </div>
-
-    <div class="process-step">
-      <div class="step-num">03</div>
-      <h3>Concurrency Sweep</h3>
-      <p>For each <code>(engine, regime, concurrency)</code> configuration:</p>
-      <ol>
-        <li>Open <code>concurrency</code> simultaneous connections via <code>httpx.AsyncClient</code> semaphore.</li>
-        <li>Send up to <code>max(concurrency × 30, 100)</code> requests — enough to saturate the server and get stable percentiles.</li>
-        <li>Each request is a streaming OpenAI Chat Completions call (non-streaming for llama.cpp, which lacks <code>stream_options.include_usage</code>).</li>
-        <li>Record per-request: wall time, TTFT (first content token), TPOT (inter-token latency), output token count, success/failure.</li>
-      </ol>
-      <p class="step-note">Short regime: 3 repeats per config. Long regime: 1 repeat. Reasoning regime: 1 repeat, 10 measure requests per config. Median and spread computed across repeats.</p>
-    </div>
-
-    <div class="process-step">
-      <div class="step-num">04</div>
-      <h3>Metric Aggregation</h3>
-      <p>From raw per-request JSONL, <code>collect_metrics.py</code> computes for each <code>(engine, regime, concurrency)</code>:</p>
-      <dl class="tight">
-        <dt>Throughput</dt>
-        <dd>Total output tokens ÷ wall-clock seconds. Median of repeats.</dd>
-        <dt>TTFT p50 / p95</dt>
-        <dd>Time from request sent to first content token. Streaming engines only (llama.cpp: N/A).</dd>
-        <dt>TPOT p50 / p95</dt>
-        <dd>Time per output token after first token: <code>(wall_time − TTFT) ÷ (output_tokens − 1)</code>.</dd>
-        <dt>E2E Latency p50 / p95 / p99</dt>
-        <dd>Total request wall time. Available for all engines.</dd>
-        <dt>Success rate</dt>
-        <dd>Completed requests ÷ total sent. Requests exceeding 300s timeout count as failures.</dd>
-      </dl>
-    </div>
-  </div>
-</section>
 
 <!-- ════════ RESULTS ════════ -->
 <section id="results">
@@ -1169,530 +1060,6 @@ td.best { color: var(--accent); font-weight: 600; }
   </div>
 
   <div id="table-container"></div>
-</section>
-
-<!-- ════════ REPRODUCE ════════ -->
-<section id="reproduce">
-  <div class="section-head">
-    <h2>Reproduce &amp; Customize</h2>
-    <p>Run the benchmarks yourself, or adapt them for your own model, GPU, and workload.</p>
-  </div>
-
-  <div class="reproduce-grid">
-    <div class="reproduce-block">
-      <h3>Quick start</h3>
-      <div class="code-block"><pre><code>git clone https://github.com/ree2raz/inference-bench
-cd inference-bench
-make setup          # venv + deps + modal auth
-
-# Run individual engines (~$8 total Modal credits)
-modal run modal_vllm.py --regime short
-modal run modal_sglang.py --regime short
-modal run modal_llamacpp.py
-
-# AWQ quantization variants
-modal run modal_vllm_awq.py
-modal run modal_sglang_awq.py
-
-# Qwen3 reasoning benchmarks
-modal run modal_qwen3_vllm.py -d
-modal run modal_qwen3_sglang.py -d
-modal run modal_qwen3_awq_vllm.py -d
-modal run modal_qwen3_awq_sglang.py -d
-
-# Generate charts + tables
-make report</code></pre></div>
-    </div>
-
-    <div class="reproduce-block">
-      <h3>Customize the model</h3>
-      <p>Edit <code>configs/engines.yaml</code>:</p>
-      <div class="code-block"><pre><code># Swap model — vLLM/SGLang use HF repo IDs
-model: "meta-llama/Meta-Llama-3-8B-Instruct"
-
-# llama.cpp — point to a GGUF repo + file
-engines:
-  llamacpp:
-    gguf_model: "bartowski/Meta-Llama-3-8B-Instruct-GGUF"
-    gguf_file: "Meta-Llama-3-8B-Instruct-Q4_K_M.gguf"</code></pre></div>
-      <p>Then update the server flags in <code>bench_lib.py</code> (<code>VLLM_SERVER_ARGS</code>, <code>SGLANG_SERVER_ARGS</code>, <code>start_llamacpp_server</code>) to match your model's requirements.</p>
-    </div>
-
-    <div class="reproduce-block">
-      <h3>Customize the workload</h3>
-      <p>Edit <code>scripts/generate_workload.py</code> to change prompt topics, token lengths, or template structure. Then regenerate:</p>
-      <div class="code-block"><pre><code>python scripts/generate_workload.py
-# → writes prompts/workload.jsonl</code></pre></div>
-      <p>Adjust regime parameters in <code>configs/workload_short.yaml</code> and <code>configs/workload_long.yaml</code>:</p>
-      <div class="code-block"><pre><code>max_input_tokens: 256    # short regime context length
-max_output_tokens: 128    # short regime max response
-concurrency_levels: [1, 4, 16, 32, 64]
-repeats: 3</code></pre></div>
-    </div>
-
-    <div class="reproduce-block">
-      <h3>Change the GPU</h3>
-      <p>Set <code>GPU_TYPE</code> in <code>bench_lib.py</code>. Modal supports A10G, A100, H100, L4, T4, and more. For multi-GPU, edit the <code>@app.cls(gpu=...)</code> decorators in the Modal app files.</p>
-      <div class="code-block"><pre><code># bench_lib.py — line 13
-GPU_TYPE = "L4"    # change to "A100", "H100", "A10G", etc.</code></pre></div>
-      <p>Budget estimate: L4 ~$0.30/hr, A100 ~$1.50/hr, H100 ~$4.00/hr. Full benchmark suite runs in ~3–4 hours on L4 (~$8).</p>
-    </div>
-
-    <div class="reproduce-block">
-      <h3>Run a subset</h3>
-      <p>Skip engines or regimes you don't need:</p>
-      <div class="code-block"><pre><code># Single engine only
-modal run modal_vllm.py --regime short
-
-# Combined orchestrator with filters
-modal run modal_app.py --engine sglang --regime long
-
-# Parallel all engines (fastest, if you have Modal credits)
-make bench-all-parallel</code></pre></div>
-      <p>Already-completed configs are automatically skipped — re-running resumes from where you left off.</p>
-    </div>
-
-    <div class="reproduce-block full-width">
-      <h3>Project structure</h3>
-      <div class="code-block"><pre><code>inference-bench/
-├── bench_lib.py               # shared constants, image builders, bench logic
-├── modal_vllm.py              # vLLM FP16 (standalone app)
-├── modal_sglang.py            # SGLang FP16 (standalone app)
-├── modal_llamacpp.py          # llama.cpp (standalone app)
-├── modal_vllm_awq.py          # vLLM AWQ (standalone app)
-├── modal_sglang_awq.py        # SGLang AWQ (standalone app)
-├── modal_qwen3_vllm.py        # Qwen3 vLLM reasoning (standalone)
-├── modal_qwen3_sglang.py      # Qwen3 SGLang reasoning (standalone)
-├── modal_qwen3_awq_vllm.py    # Qwen3 AWQ vLLM reasoning (standalone)
-├── modal_qwen3_awq_sglang.py  # Qwen3 AWQ SGLang reasoning (standalone)
-├── modal_app.py               # orchestrator (all FP16 engines)
-├── scripts/
-│   ├── generate_workload.py   # prompt generation
-│   ├── reaggregate.py         # raw JSONL → summary
-│   ├── collect_metrics.py     # summary → CSV
-│   └── plot_results.py        # CSV → charts
-├── prompts/
-│   └── workload.jsonl          # 230 prompts (committed)
-├── results/
-│   ├── raw/                    # per-run JSONL
-│   ├── summary.jsonl
-│   ├── summary.csv
-│   └── plots/
-└── Makefile</code></pre></div>
-    </div>
-  </div>
-</section>
-
-<!-- ════════ LIMITATIONS ════════ -->
-<section id="limitations">
-  <div class="section-head">
-    <h2>What This Doesn't Measure</h2>
-    <p>Known limitations of the benchmark scope — important for interpreting results correctly.</p>
-  </div>
-
-  <ul class="limitations-grid">
-    <li>Multi-GPU / tensor parallelism</li>
-    <li>Speculative decoding</li>
-    <li>LoRA / adapter hot-swapping</li>
-    <li>Long-context behavior (&gt;4K tokens)</li>
-    <li>Mixed workloads (short + long concurrent)</li>
-    <li>Cold-start under autoscaling</li>
-    <li>CPU-only / Metal / Apple Silicon</li>
-    <li>Structured output / JSON mode</li>
-    <li>Tool use / function calling overhead</li>
-    <li>Single GPU class (L4 only)</li>
-    <li>Single model (Qwen2.5-7B)</li>
-    <li>Greedy decoding only (temp=0)</li>
-    <li>llama.cpp non-streaming (no TTFT/TPOT)</li>
-    <li>Quantization not at parity (Q4 vs FP16)</li>
-  </ul>
-</section>
-
-<!-- ════════ FOOTER ════════ -->
-<div class="footer">
-  <span>Apache 2.0 · Qwen2.5-7B + Qwen3-8B · NVIDIA L4 via Modal</span>
-  <a href="https://github.com/ree2raz/inference-bench">github.com/ree2raz/inference-bench</a>
-</div>
-
-  <div class="method-grid">
-    <div class="method-card">
-      <h3>Hardware</h3>
-      <dl>
-        <dt>GPU</dt><dd>NVIDIA L4 (24 GB)</dd>
-        <dt>Provider</dt><dd>Modal (per-second billing)</dd>
-        <dt>CUDA</dt><dd>12.4.1</dd>
-      </dl>
-    </div>
-    <div class="method-card">
-      <h3>Model</h3>
-      <dl>
-        <dt>FP16</dt><dd>Qwen2.5-7B-Instruct (~15 GB)</dd>
-        <dt>AWQ</dt><dd>Qwen2.5-7B-Instruct-AWQ (~5.2 GB)</dd>
-        <dt>GGUF</dt><dd>Q4_K_M quantization (~4.4 GB)</dd>
-        <dt>Reasoning</dt><dd>Qwen3-8B + Qwen3-8B-AWQ</dd>
-      </dl>
-    </div>
-    <div class="method-card">
-      <h3>Workload</h3>
-      <dl>
-        <dt>Short</dt><dd>≤256 in, 128 out (chat)</dd>
-        <dt>Long</dt><dd>≤2048 in, 512 out (RAG)</dd>
-        <dt>Reasoning</dt><dd>≤256 in, 8192 out (thinking)</dd>
-        <dt>Sampling</dt><dd>Greedy (temp=0)</dd>
-        <dt>Repeats</dt><dd>3x short, 1x long, 1x reasoning</dd>
-      </dl>
-    </div>
-  </div>
-
-  <div class="versions-row">
-    <div class="version-item vllm">
-      <div>
-        <div class="engine-name">vLLM</div>
-        <div class="engine-flags">--max-num-seqs 64 · --gpu-mem-util 0.90</div>
-      </div>
-      <div class="engine-ver">v0.8.5</div>
-    </div>
-    <div class="version-item sglang">
-      <div>
-        <div class="engine-name">SGLang</div>
-        <div class="engine-flags">--max-running-req 64 · --mem-frac 0.85 · --disable-cuda-graph</div>
-      </div>
-      <div class="engine-ver">v0.4.6</div>
-    </div>
-    <div class="version-item llamacpp">
-      <div>
-        <div class="engine-name">llama.cpp</div>
-        <div class="engine-flags">-np 4 --parallel 4 -ngl 99 -c 16384</div>
-      </div>
-      <div class="engine-ver">b5540</div>
-    </div>
-    <div class="version-item vllm_awq">
-      <div>
-        <div class="engine-name">vLLM AWQ</div>
-        <div class="engine-flags">--quantization awq --enforce-eager</div>
-      </div>
-      <div class="engine-ver">v0.8.5</div>
-    </div>
-    <div class="version-item sglang_awq">
-      <div>
-        <div class="engine-name">SGLang AWQ</div>
-        <div class="engine-flags">--quantization awq --disable-cuda-graph</div>
-      </div>
-      <div class="engine-ver">v0.4.6</div>
-    </div>
-  </div>
-  <div class="versions-row" style="margin-top:0.75rem; grid-template-columns: repeat(4, 1fr);">
-    <div class="version-item qwen3_vllm">
-      <div>
-        <div class="engine-name">Qwen3 vLLM</div>
-        <div class="engine-flags">--reasoning-parser deepseek_r1 --max-model-len 16384</div>
-      </div>
-      <div class="engine-ver">v0.8.5</div>
-    </div>
-    <div class="version-item qwen3_sglang">
-      <div>
-        <div class="engine-name">Qwen3 SGLang</div>
-        <div class="engine-flags">--reasoning-parser deepseek-r1 --context-length 16384</div>
-      </div>
-      <div class="engine-ver">v0.4.6</div>
-    </div>
-    <div class="version-item qwen3_awq_vllm">
-      <div>
-        <div class="engine-name">Qwen3 AWQ vLLM</div>
-        <div class="engine-flags">--quantization awq --reasoning-parser deepseek_r1 --max-model-len 16384</div>
-      </div>
-      <div class="engine-ver">v0.8.5</div>
-    </div>
-    <div class="version-item qwen3_awq_sglang">
-      <div>
-        <div class="engine-name">Qwen3 AWQ SGLang</div>
-        <div class="engine-flags">--quantization awq --reasoning-parser deepseek-r1 --context-length 16384</div>
-      </div>
-      <div class="engine-ver">v0.4.6</div>
-    </div>
-  </div>
-</section>
-
-<!-- ════════ PROCESS ════════ -->
-<section id="process">
-  <div class="section-head">
-    <h2>Benchmark Process</h2>
-    <p>How prompts are generated, how measurements are taken, and what the pipeline looks like end to end.</p>
-  </div>
-
-  <div class="process-grid">
-    <div class="process-step">
-      <div class="step-num">01</div>
-      <h3>Prompt Generation</h3>
-      <p>Synthetic prompts generated deterministically (seed=42) from two template families:</p>
-      <dl>
-        <dt>Short regime</dt>
-        <dd>50 CS/ systems topics (mutex vs semaphore, CAP theorem, Raft consensus, Bloom filters, etc.) as single-turn questions. ~200 input tokens, 128 max output tokens. Models conversational chat workloads.</dd>
-        <dt>Long regime</dt>
-        <dd>10 domain pairs (distributed systems + consensus, ML + transformers, OS + scheduling, etc.) each paired with one of 10 analytical questions. Synthetic RAG context (~1200 tokens) padded to ~1800 input tokens, 512 max output tokens. Models retrieval-augmented generation workloads.</dd>
-      </dl>
-      <p class="step-note">100 prompts per regime, committed to <code>prompts/workload.jsonl</code>. Fully deterministic — same seed, same prompts, same order. Reasoning regime adds 30 multi-step reasoning prompts for Qwen3 thinking models.</p>
-    </div>
-
-    <div class="process-step">
-      <div class="step-num">02</div>
-      <h3>Server Startup &amp; Warmup</h3>
-      <p>Each engine is launched inside a Modal container with its respective serving flags. Client and server are colocated in the same container to eliminate network variance.</p>
-      <p>Before measurement, a warmup phase fires <code>2 × concurrency</code> requests to prefill KV caches and stabilize JIT compilation / CUDA graphs.</p>
-      <p class="step-note">Colocation understates real-world TTFT by ~5–20 ms (no network hop). This is documented but not subtracted.</p>
-    </div>
-
-    <div class="process-step">
-      <div class="step-num">03</div>
-      <h3>Concurrency Sweep</h3>
-      <p>For each <code>(engine, regime, concurrency)</code> configuration:</p>
-      <ol>
-        <li>Open <code>concurrency</code> simultaneous connections via <code>httpx.AsyncClient</code> semaphore.</li>
-        <li>Send up to <code>max(concurrency × 30, 100)</code> requests — enough to saturate the server and get stable percentiles.</li>
-        <li>Each request is a streaming OpenAI Chat Completions call (non-streaming for llama.cpp, which lacks <code>stream_options.include_usage</code>).</li>
-        <li>Record per-request: wall time, TTFT (first content token), TPOT (inter-token latency), output token count, success/failure.</li>
-      </ol>
-      <p class="step-note">Short regime: 3 repeats per config. Long regime: 1 repeat. Reasoning regime: 1 repeat, 10 measure requests per config. Median and spread computed across repeats.</p>
-    </div>
-
-    <div class="process-step">
-      <div class="step-num">04</div>
-      <h3>Metric Aggregation</h3>
-      <p>From raw per-request JSONL, <code>collect_metrics.py</code> computes for each <code>(engine, regime, concurrency)</code>:</p>
-      <dl class="tight">
-        <dt>Throughput</dt>
-        <dd>Total output tokens ÷ wall-clock seconds. Median of repeats.</dd>
-        <dt>TTFT p50 / p95</dt>
-        <dd>Time from request sent to first content token. Streaming engines only (llama.cpp: N/A).</dd>
-        <dt>TPOT p50 / p95</dt>
-        <dd>Time per output token after first token: <code>(wall_time − TTFT) ÷ (output_tokens − 1)</code>.</dd>
-        <dt>E2E Latency p50 / p95 / p99</dt>
-        <dd>Total request wall time. Available for all engines.</dd>
-        <dt>Success rate</dt>
-        <dd>Completed requests ÷ total sent. Requests exceeding 300s timeout count as failures.</dd>
-      </dl>
-    </div>
-  </div>
-</section>
-
-<!-- ════════ RESULTS ════════ -->
-<section id="results">
-  <div class="section-head">
-    <h2>Results</h2>
-    <p>Throughput, first-token latency, and tail latency across concurrency sweeps.</p>
-  </div>
-
-  <div class="regime-toggle">
-    <button class="regime-btn active" data-regime="short">Short regime</button>
-    <button class="regime-btn" data-regime="long">Long regime</button>
-    <button class="regime-btn" data-regime="reasoning">Reasoning</button>
-  </div>
-
-  <div class="charts-grid">
-    <div class="chart-box full">
-      <h3>Throughput vs Concurrency</h3>
-      <canvas id="chart-throughput"></canvas>
-    </div>
-    <div class="chart-box">
-      <h3>Time to First Token (p50)</h3>
-      <canvas id="chart-ttft"></canvas>
-    </div>
-    <div class="chart-box">
-      <h3>End-to-End Latency (p95)</h3>
-      <canvas id="chart-latency"></canvas>
-    </div>
-  </div>
-
-  <div id="table-container"></div>
-</section>
-
-<!-- ════════ REPRODUCE ════════ -->
-<section id="reproduce">
-  <div class="section-head">
-    <h2>Reproduce &amp; Customize</h2>
-    <p>Run the benchmarks yourself, or adapt them for your own model, GPU, and workload.</p>
-  </div>
-
-  <div class="reproduce-grid">
-    <div class="reproduce-block">
-      <h3>Quick start</h3>
-      <div class="code-block"><pre><code>git clone https://github.com/ree2raz/inference-bench
-cd inference-bench
-make setup          # venv + deps + modal auth
-
-# Run individual engines (~$8 total Modal credits)
-modal run modal_vllm.py --regime short
-modal run modal_sglang.py --regime short
-modal run modal_llamacpp.py
-
-# AWQ quantization variants
-modal run modal_vllm_awq.py
-modal run modal_sglang_awq.py
-
-# Qwen3 reasoning benchmarks
-modal run modal_qwen3_vllm.py -d
-modal run modal_qwen3_sglang.py -d
-modal run modal_qwen3_awq_vllm.py -d
-modal run modal_qwen3_awq_sglang.py -d
-
-# Generate charts + tables
-make report</code></pre></div>
-    </div>
-
-    <div class="reproduce-block">
-      <h3>Customize the model</h3>
-      <p>Edit <code>configs/engines.yaml</code>:</p>
-      <div class="code-block"><pre><code># Swap model — vLLM/SGLang use HF repo IDs
-model: "meta-llama/Meta-Llama-3-8B-Instruct"
-
-# llama.cpp — point to a GGUF repo + file
-engines:
-  llamacpp:
-    gguf_model: "bartowski/Meta-Llama-3-8B-Instruct-GGUF"
-    gguf_file: "Meta-Llama-3-8B-Instruct-Q4_K_M.gguf"</code></pre></div>
-      <p>Then update the server flags in <code>bench_lib.py</code> (<code>VLLM_SERVER_ARGS</code>, <code>SGLANG_SERVER_ARGS</code>, <code>start_llamacpp_server</code>) to match your model's requirements.</p>
-    </div>
-
-    <div class="reproduce-block">
-      <h3>Customize the workload</h3>
-      <p>Edit <code>scripts/generate_workload.py</code> to change prompt topics, token lengths, or template structure. Then regenerate:</p>
-      <div class="code-block"><pre><code>python scripts/generate_workload.py
-# → writes prompts/workload.jsonl</code></pre></div>
-      <p>Adjust regime parameters in <code>configs/workload_short.yaml</code> and <code>configs/workload_long.yaml</code>:</p>
-      <div class="code-block"><pre><code>max_input_tokens: 256    # short regime context length
-max_output_tokens: 128    # short regime max response
-concurrency_levels: [1, 4, 16, 32, 64]
-repeats: 3</code></pre></div>
-    </div>
-
-    <div class="reproduce-block">
-      <h3>Change the GPU</h3>
-      <p>Set <code>GPU_TYPE</code> in <code>bench_lib.py</code>. Modal supports A10G, A100, H100, L4, T4, and more. For multi-GPU, edit the <code>@app.cls(gpu=...)</code> decorators in the Modal app files.</p>
-      <div class="code-block"><pre><code># bench_lib.py — line 13
-GPU_TYPE = "L4"    # change to "A100", "H100", "A10G", etc.</code></pre></div>
-      <p>Budget estimate: L4 ~$0.30/hr, A100 ~$1.50/hr, H100 ~$4.00/hr. Full benchmark suite runs in ~3–4 hours on L4 (~$8).</p>
-    </div>
-
-    <div class="reproduce-block">
-      <h3>Run a subset</h3>
-      <p>Skip engines or regimes you don't need:</p>
-      <div class="code-block"><pre><code># Single engine only
-modal run modal_vllm.py --regime short
-
-# Combined orchestrator with filters
-modal run modal_app.py --engine sglang --regime long
-
-# Parallel all engines (fastest, if you have Modal credits)
-make bench-all-parallel</code></pre></div>
-      <p>Already-completed configs are automatically skipped — re-running resumes from where you left off.</p>
-    </div>
-
-    <div class="reproduce-block full-width">
-      <h3>Project structure</h3>
-      <div class="code-block"><pre><code>inference-bench/
-├── bench_lib.py               # shared constants, image builders, bench logic
-├── modal_vllm.py              # vLLM FP16 (standalone app)
-├── modal_sglang.py            # SGLang FP16 (standalone app)
-├── modal_llamacpp.py          # llama.cpp (standalone app)
-├── modal_vllm_awq.py          # vLLM AWQ (standalone app)
-├── modal_sglang_awq.py        # SGLang AWQ (standalone app)
-├── modal_qwen3_vllm.py        # Qwen3 vLLM reasoning (standalone)
-├── modal_qwen3_sglang.py      # Qwen3 SGLang reasoning (standalone)
-├── modal_qwen3_awq_vllm.py    # Qwen3 AWQ vLLM reasoning (standalone)
-├── modal_qwen3_awq_sglang.py  # Qwen3 AWQ SGLang reasoning (standalone)
-├── modal_app.py               # orchestrator (all FP16 engines)
-├── scripts/
-│   ├── generate_workload.py   # prompt generation
-│   ├── reaggregate.py         # raw JSONL → summary
-│   ├── collect_metrics.py     # summary → CSV
-│   └── plot_results.py        # CSV → charts
-├── prompts/
-│   └── workload.jsonl          # 230 prompts (committed)
-├── results/
-│   ├── raw/                    # per-run JSONL
-│   ├── summary.jsonl
-│   ├── summary.csv
-│   └── plots/
-└── Makefile</code></pre></div>
-    </div>
-  </div>
-</section>
-
-<!-- ════════ FINDINGS ════════ -->
-<section id="findings">
-  <div class="section-head">
-    <h2>Findings</h2>
-    <p>What the data actually says — and where each engine fits.</p>
-  </div>
-
-  <ol class="findings-list">
-    <li>
-      <h4>SGLang leads throughput at every concurrency level</h4>
-      <p>At c=64 short, SGLang hits 914 tok/s vs vLLM's 831 tok/s (+10%). The gap holds in the long regime (840 vs 777 tok/s). Radix attention provides consistent per-token overhead regardless of batch size.</p>
-    </li>
-    <li>
-      <h4>vLLM has the lowest TTFT at low concurrency</h4>
-      <p>At c=1 short, vLLM TTFT is 70 ms vs SGLang's 119 ms — 42% faster first-token response. This advantage erodes at high concurrency as vLLM's TTFT grows faster with load.</p>
-    </li>
-    <li>
-      <h4>llama.cpp (Q4_K_M) is fastest at c=1 but degrades beyond c=4</h4>
-      <p>At c=1 short, llama.cpp achieves 47 tok/s with 2.7 s p95 latency — nearly 3x the throughput and 2.8x faster E2E than the FP16 engines. This comes from Q4's reduced compute. However, limited parallelism (--parallel 4) means throughput plateaus around 190 tok/s at c=64.</p>
-    </li>
-    <li>
-      <h4>Per-request throughput is nearly constant for vLLM/SGLang</h4>
-      <p>Both maintain ~13–17 tok/s per-request regardless of concurrency, indicating effective continuous batching. llama.cpp's per-request throughput drops sharply — from 47 to 2.9 tok/s at c=64.</p>
-    </li>
-    <li>
-      <h4>Long regime amplifies differences</h4>
-      <p>At c=64 long, SGLang's 840 tok/s is 8% faster than vLLM's 777 tok/s, and SGLang's p95 latency (40 s) is 9% lower. llama.cpp struggles with long sequences at high concurrency — only 55% success rate at c=64.</p>
-    </li>
-    <li>
-      <h4>AWQ quantization on vLLM is a free lunch</h4>
-      <p>vLLM AWQ delivers 43 tok/s at c=1 short — 2.5x the FP16 throughput — while using only 5.2 GB VRAM vs 15 GB. At c=64, it hits 976 tok/s (+17% over FP16 vLLM's 831). AWQ on vLLM is the best single-GPU value proposition.</p>
-    </li>
-    <li>
-      <h4>Reasoning workloads expose engine differences</h4>
-      <p>With Qwen3-8B generating ~6,000 thinking tokens per request, AWQ vLLM dominates at 345 tok/s at c=16 — 2.4x faster than FP16 SGLang (147 tok/s). AWQ's memory savings become critical when KV caches must hold 8K+ token sequences. SGLang AWQ degraded to 8 tok/s at c=1 (torch 2.5.1 compatibility issue), while FP16 SGLang dropped to 90% success at c=16.</p>
-    </li>
-    <li>
-      <h4>TTFT to answer is the real metric for reasoning models</h4>
-      <p>First content token arrives in ~150-400 ms, but the first <em>answer</em> token (after thinking) takes 145-664 seconds depending on engine and concurrency. Qwen3 AWQ vLLM at c=4 delivers the answer in 145 s — 4.6x faster than Qwen3 SGLang at c=16 (664 s). For thinking models, "time to useful output" dominates user experience.</p>
-    </li>
-  </ol>
-</section>
-
-<!-- ════════ WHERE EACH WINS ════════ -->
-<section id="recommendations">
-  <div class="section-head">
-    <h2>Where Each Engine Wins</h2>
-  </div>
-
-  <div class="method-grid">
-    <div class="method-card vllm" style="border-top: 2px solid var(--vllm)">
-      <h3 style="color: var(--vllm)">vLLM</h3>
-      <p style="font-size: 0.85rem; color: var(--fg-muted); line-height: 1.6;">
-        Lowest TTFT for single-request workloads (70 ms at c=1). Best choice when 
-        latency-sensitive individual responses matter more than aggregate throughput — 
-        interactive chatbots, real-time assistants.
-      </p>
-    </div>
-    <div class="method-card sglang" style="border-top: 2px solid var(--sglang)">
-      <h3 style="color: var(--sglang)">SGLang</h3>
-      <p style="font-size: 0.85rem; color: var(--fg-muted); line-height: 1.6;">
-        Highest throughput at every concurrency level. Best for batched workloads, 
-        API serving, and high-concurrency production deployments. Radix attention 
-        provides consistent TPOT (~60–70 ms) across concurrency levels.
-      </p>
-    </div>
-    <div class="method-card llamacpp" style="border-top: 2px solid var(--llamacpp)">
-      <h3 style="color: var(--llamacpp)">llama.cpp</h3>
-      <p style="font-size: 0.85rem; color: var(--fg-muted); line-height: 1.6;">
-        Fastest single-request latency and smallest footprint. Best for 
-        resource-constrained environments (edge, embedded, CPU-only), development/testing, 
-        and low-concurrency use cases. Q4_K_M runs in ~4.4 GB VRAM vs ~14.2 GB FP16.
-      </p>
-    </div>
-  </div>
 </section>
 
 <!-- ════════ LIMITATIONS ════════ -->
@@ -2155,7 +1522,7 @@ document.querySelectorAll('section:not(.hero)').forEach(s => observer.observe(s)
 
 // ── ACTIVE NAV HIGHLIGHT ──
 const navLinks = document.querySelectorAll('.topnav-links a');
-const sectionIds = ['overview', 'recommendations', 'findings', 'methodology', 'process', 'results', 'reproduce', 'limitations'];
+const sectionIds = ['overview', 'recommendations', 'findings', 'validation', 'results', 'methodology', 'limitations'];
 const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
 
 function updateActiveNav() {
