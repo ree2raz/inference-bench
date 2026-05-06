@@ -29,6 +29,18 @@ Reproducible head-to-head benchmarks of **vLLM**, **SGLang**, and **llama.cpp** 
 
 Interactive dashboard: [llm-bench.rituraj.info](https://llm-bench.rituraj.info)
 
+### A100 Validation (vLLM, Qwen2.5-7B)
+
+Single-GPU validation run on NVIDIA A100 80GB via Modal to cross-check L4 findings on a higher-tier GPU.
+
+| Config | c=1 tok/s | c=16 tok/s | c=64 tok/s |
+|---|---|---|---|
+| FP16 | 72 | 950 | 2,564 |
+| AWQ default | 63 | 811 | 2,011 |
+| AWQ Marlin | 104 | 1,624 | 2,968 |
+
+_N=1 per config (validation run, not full benchmark suite). vLLM v0.8.5, A100 80GB via Modal._
+
 ## Validated by Real Benchmarks
 
 The throughput model in the [LLM Deploy Cost Calculator](https://llm-cost.rituraj.info) predicts decode performance from GPU specs. These benchmarks measure the actual numbers on the same hardware and model:
@@ -39,18 +51,23 @@ The throughput model in the [LLM Deploy Cost Calculator](https://llm-cost.ritura
 | AWQ c=1 per-stream | 85.4 tok/s | 43.2 tok/s | 51% |
 | FP16 c=64 aggregate | 1,294 tok/s | 914 tok/s (SGLang) | 71% |
 | FP16 c=64 aggregate | 1,294 tok/s | 831 tok/s (vLLM) | 64% |
+| FP16 c=1 per-stream (A100) | 145.6 tok/s | 72.1 tok/s | 50% |
+| AWQ Marlin c=1 (A100) | 582.6 tok/s | 104.2 tok/s | 18% |
+| FP16 c=64 per-stream (A100) | 145.6 tok/s | 40.1 tok/s | 28% |
 
 FP16 achieves 64-80% of theoretical bandwidth — the gap comes from kernel overhead, attention computation, and KV cache reads. AWQ drops to 51% due to dequantization overhead and irregular memory access patterns. The calculator's "ideal batching" assumption is real: engines achieve 64-71% of ideal at high concurrency.
+
+A100 achieves lower per-stream efficiency (28-50% vs 61-80% on L4) because at 2TB/s memory bandwidth, the bottleneck shifts from memory to compute (attention, KV cache). The higher aggregate throughput (2,564 tok/s at c=64 vs L4's 831) comes from the A100's 10x compute advantage (312 vs 31 TFLOPS), not bandwidth. AWQ Marlin on A100 is 48-64% faster than default AWQ, confirming Marlin kernels as essential for quantized inference on Ampere+ GPUs.
 
 ## Setup
 
 ### Hardware
 
-| Component | Value |
-|---|---|
-| GPU | NVIDIA L4 (24 GB VRAM) |
-| Provider | Modal (cloud GPU, per-second billing) |
-| CUDA | 12.4.1 |
+| Component | L4 | A100 |
+|---|---|---|
+| GPU | NVIDIA L4 (24 GB VRAM) | NVIDIA A100 (80 GB VRAM) |
+| Provider | Modal (cloud GPU, per-second billing) | Modal (cloud GPU, per-second billing) |
+| CUDA | 12.4.1 | 12.4.1 |
 
 ### Models
 
@@ -211,7 +228,7 @@ Already-completed configs are automatically skipped — re-running resumes from 
 
 ## Limitations
 
-- **Single GPU class** (L4 only). Results may differ on A100/H100.
+- **Two GPU classes tested** (L4, A100). Results may differ on H100/B200.
 - **Fixed model set** (Qwen2.5-7B, Qwen3-8B). Larger models may show different batching behavior.
 - **Greedy decoding only.** Sampling with temperature > 0 may change throughput characteristics.
 - **Synthetic prompts.** Not drawn from a real production workload.
@@ -230,7 +247,8 @@ Already-completed configs are automatically skipped — re-running resumes from 
 | Qwen3 reasoning (4 engines) | ~14 hrs | ~$4.20 |
 | Failed MoE attempts | ~4 hrs | ~$1.20 |
 | Retries (timeout fixes) | ~3 hrs | ~$0.90 |
-| **Total** | **~35 hrs** | **~$10.50** |
+| A100 validation (FP16 + AWQ + Marlin) | ~0.5 hrs | ~$0.75 |
+| **Total** | **~35.5 hrs** | **~$11.25** |
 
 ## Project Structure
 
