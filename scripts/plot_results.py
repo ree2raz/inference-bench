@@ -9,9 +9,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-ENGINES = ["vllm", "vllm_awq", "sglang", "sglang_awq", "llamacpp", "qwen3_vllm", "qwen3_sglang", "qwen3_awq_vllm", "qwen3_awq_sglang", "qwen3_moe_vllm", "qwen3_moe_sglang"]
-COLORS = {"vllm": "#2563eb", "vllm_awq": "#93c5fd", "sglang": "#dc2626", "sglang_awq": "#fca5a5", "llamacpp": "#16a34a", "qwen3_vllm": "#7c3aed", "qwen3_sglang": "#a855f7", "qwen3_awq_vllm": "#c084fc", "qwen3_awq_sglang": "#d8b4fe", "qwen3_moe_vllm": "#f59e0b", "qwen3_moe_sglang": "#fbbf24"}
-MARKERS = {"vllm": "o", "vllm_awq": "D", "sglang": "s", "sglang_awq": "p", "llamacpp": "^", "qwen3_vllm": "v", "qwen3_sglang": "P", "qwen3_awq_vllm": "X", "qwen3_awq_sglang": "h", "qwen3_moe_vllm": "*", "qwen3_moe_sglang": "d"}
+ENGINES = ["vllm", "vllm_awq", "sglang", "sglang_awq", "llamacpp", "qwen3_vllm", "qwen3_sglang", "qwen3_awq_vllm", "qwen3_awq_sglang", "qwen3_moe_vllm", "qwen3_moe_sglang", "qwen3_moe_bf16", "qwen3_moe_awq", "qwen3_moe_awq_long"]
+COLORS = {"vllm": "#2563eb", "vllm_awq": "#93c5fd", "sglang": "#dc2626", "sglang_awq": "#fca5a5", "llamacpp": "#16a34a", "qwen3_vllm": "#7c3aed", "qwen3_sglang": "#a855f7", "qwen3_awq_vllm": "#c084fc", "qwen3_awq_sglang": "#d8b4fe", "qwen3_moe_vllm": "#f59e0b", "qwen3_moe_sglang": "#fbbf24", "qwen3_moe_bf16": "#ea580c", "qwen3_moe_awq": "#f97316", "qwen3_moe_awq_long": "#fdba74"}
+MARKERS = {"vllm": "o", "vllm_awq": "D", "sglang": "s", "sglang_awq": "p", "llamacpp": "^", "qwen3_vllm": "v", "qwen3_sglang": "P", "qwen3_awq_vllm": "X", "qwen3_awq_sglang": "h", "qwen3_moe_vllm": "*", "qwen3_moe_sglang": "d", "qwen3_moe_bf16": "X", "qwen3_moe_awq": "P", "qwen3_moe_awq_long": "D"}
 
 
 def load_csv(path: str) -> list[dict]:

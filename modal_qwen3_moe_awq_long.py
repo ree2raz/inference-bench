@@ -19,11 +19,12 @@ import os
 from bench_lib import (
     hf_cache, results_vol,
     run_benchmark_impl, wait_for_server,
+    print_result_line, write_summary,
 )
 
 # ── Config ──
 GPU = "A100"
-TIMEOUT = 60 * 45  # 45 min
+TIMEOUT = 60 * 180  # 180 min
 
 MODEL = "cognitivecomputations/Qwen3-30B-A3B-AWQ"  # AWQ Int4, ~17 GB
 CONCURRENCIES = [1, 4, 16]
@@ -97,25 +98,33 @@ class MoEBenchmark:
         print(f"[server] Ready in {self.cold_start:.1f}s")
 
     @modal.method()
-    def run(self, concurrency: int) -> dict:
-        """Run a single benchmark at given concurrency."""
-        config_label = "moe_awq_long"
-        print(f"[bench] {config_label} c={concurrency} ...")
-        r = run_benchmark_impl(
-            engine="qwen3_moe_vllm",
-            regime=REGIME,
-            concurrency=concurrency,
-            repeat=1,
-            model_name=MODEL,
-        )
-        r["cold_start_seconds"] = round(self.cold_start, 1)
-        r["config"] = config_label
-        r["vllm_version"] = "v0.20.1"
-        r["gpu"] = GPU
-        r["model"] = MODEL
-        print(f"[bench] {config_label} c={concurrency}: {r.get('throughput_tokens_per_sec', 'ERR')} tok/s, "
-              f"success={r.get('successful_requests', '?')}/{r.get('total_requests', '?')}")
-        return r
+    def run_all(self):
+        """Run all benchmark configurations."""
+        engine = "qwen3_moe_awq_long"
+        all_results = []
+        skipped = 0
+        for conc in CONCURRENCIES:
+            for rep in range(1, 2):  # repeat = 1
+                run_id = f"{engine}_{REGIME}_c{conc}_r{rep}"
+                remote_path = f"/results/raw/{run_id}.jsonl"
+                if os.path.exists(remote_path):
+                    print(f"  [skip] {run_id} already in Volume")
+                    skipped += 1
+                    continue
+                print(f"\n  >> {engine} | {REGIME} | c={conc} | r={rep}/1")
+                result = run_benchmark_impl(engine, REGIME, conc, rep, model_name=MODEL)
+                result["cold_start_seconds"] = round(self.cold_start, 1)
+                result["config"] = "moe_awq_long"
+                result["vllm_version"] = "v0.20.1"
+                result["gpu"] = GPU
+                result["model"] = MODEL
+                print_result_line(result)
+                all_results.append(result)
+        if all_results:
+            write_summary(all_results)
+        if skipped:
+            print(f"\n  Skipped {skipped} already-completed configs.")
+        return len(all_results), skipped
 
     @modal.exit()
     def stop_server(self):
@@ -135,26 +144,5 @@ def main():
     print("=" * 60)
 
     bench = MoEBenchmark()
-    all_results = []
-    for c in CONCURRENCIES:
-        r = bench.run.remote(concurrency=c)
-        all_results.append(r)
-
-    if all_results:
-        results_path = "/results/moe_awq_16384_results.jsonl"
-        with open(results_path, "w") as f:
-            for r in all_results:
-                f.write(json.dumps(r) + "\n")
-        results_vol.commit()
-        print(f"\nSaved {len(all_results)} results to {results_path}")
-
-        print("\n" + "=" * 60)
-        print("  RESULTS SUMMARY")
-        print("=" * 60)
-        for r in all_results:
-            label = f"{r.get('config', '?'):>15s} c={r.get('concurrency', '?'):>2d}"
-            tp = r.get('throughput_tokens_per_sec', 'ERR')
-            sr = f"{r.get('successful_requests', '?')}/{r.get('total_requests', '?')}"
-            print(f"  {label}: {tp:>8.1f} tok/s  success={sr}")
-    else:
-        print("\nNo results — run failed.")
+    n_new, n_skip = bench.run_all.remote()
+    print(f"\n  Done: {n_new} new results, {n_skip} skipped.")
