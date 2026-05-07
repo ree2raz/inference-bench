@@ -1079,6 +1079,7 @@ td.best { color: var(--accent); font-weight: 600; }
     <button class="regime-btn" data-regime="long">Long regime</button>
     <button class="regime-btn" data-regime="reasoning">Reasoning</button>
     <button class="regime-btn" data-regime="a100">A100</button>
+    <button class="regime-btn" data-regime="moe">MoE (A100)</button>
   </div>
 
   <div class="charts-grid">
@@ -1261,12 +1262,34 @@ const DATA = {
       latency_p95: [1352, 1191, 2447],
       success: [100, 100, 100],
     },
+  },
+  moe: {
+    concurrencies: [1, 4, 16],
+    moe_bf16: {
+      throughput: [133.7, 300.9, null],
+      ttft: [29.3, 39.8, null],
+      latency_p95: [964, 1726, null],
+      success: [100, 100, null],
+    },
+    moe_awq: {
+      throughput: [164.7, 519.8, 1475.6],
+      ttft: [22.1, 31.6, 91.9],
+      latency_p95: [779, 998, 1452],
+      success: [100, 100, 100],
+    },
+    moe_awq_long: {
+      throughput: [160.6, 508.3, 1484.9],
+      ttft: [23.3, 34.1, 96.1],
+      latency_p95: [798, 1025, 1413],
+      success: [100, 100, 100],
+    },
   }
 };
 
 const SHORT_LONG_ENGINES = ['vllm', 'vllm_awq', 'sglang', 'sglang_awq', 'llamacpp'];
 const REASONING_ENGINES = ['qwen3_vllm', 'qwen3_awq_vllm', 'qwen3_sglang', 'qwen3_awq_sglang'];
 const A100_ENGINES = ['vllm_fp16', 'vllm_awq', 'vllm_marlin'];
+const MOE_ENGINES = ['moe_bf16', 'moe_awq', 'moe_awq_long'];
 
 const ENGINE_COLORS = {
   vllm: { line: '#3b82f6', bg: 'rgba(59,130,246,0.12)', point: '#60a5fa' },
@@ -1280,12 +1303,18 @@ const ENGINE_COLORS = {
   qwen3_awq_sglang: { line: '#fdba74', bg: 'rgba(253,186,116,0.12)', point: '#fed7aa' },
   vllm_fp16: { line: '#3b82f6', bg: 'rgba(59,130,246,0.12)', point: '#60a5fa' },
   vllm_marlin: { line: '#60a5fa', bg: 'rgba(96,165,250,0.12)', point: '#93c5fd' },
+  moe_bf16: { line: '#c87533', bg: 'rgba(200,117,51,0.12)', point: '#d4945c' },
+  moe_awq: { line: '#e6984a', bg: 'rgba(230,152,74,0.12)', point: '#edb473' },
+  moe_awq_long: { line: '#d4a76a', bg: 'rgba(212,167,106,0.12)', point: '#e0c08a' },
 };
 
 const ENGINE_NAMES = {
   vllm: 'vLLM', vllm_awq: 'vLLM AWQ', sglang: 'SGLang', sglang_awq: 'SGLang AWQ', llamacpp: 'llama.cpp',
   qwen3_vllm: 'Qwen3 vLLM', qwen3_awq_vllm: 'Qwen3 AWQ vLLM', qwen3_sglang: 'Qwen3 SGLang', qwen3_awq_sglang: 'Qwen3 AWQ SGLang',
   vllm_fp16: 'vLLM FP16 (A100)', vllm_marlin: 'vLLM AWQ Marlin (A100)',
+  moe_bf16: 'Qwen3-30B-A3B BF16 (A100)',
+  moe_awq: 'Qwen3-30B-A3B AWQ (A100)',
+  moe_awq_long: 'Qwen3-30B-A3B AWQ 16K (A100)',
 };
 
 // ── CHART DEFAULTS ──
@@ -1303,6 +1332,7 @@ const TICK_OPTS = { color: '#6b6054', font: { size: 10 } };
 function getEngineOrder(regime) {
   if (regime === 'reasoning') return REASONING_ENGINES;
   if (regime === 'a100') return A100_ENGINES;
+  if (regime === 'moe') return MOE_ENGINES;
   return SHORT_LONG_ENGINES;
 }
 
