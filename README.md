@@ -22,7 +22,7 @@ Reproducible head-to-head benchmarks of **vLLM**, **SGLang**, and **llama.cpp** 
 
 **What to trust:** Relative rankings between engines are the durable finding — they reflect architectural differences, not version-specific numbers. Absolute tok/s figures are lower bounds: a vLLM v0.20.2 spot-check on A100 showed +28% over the v0.8.5 numbers here. SGLang has similarly improved. See [Limitations](#limitations) for full scope.
 
-**What's not covered:** H100/B200, FP8 quantization, multi-GPU tensor parallelism, prefix caching, speculative decoding, AMD GPUs. Results are from L4 (24 GB) and A100 (80 GB) with Qwen2.5-7B (dense), Qwen3-8B (reasoning), and Qwen3-30B-A3B (MoE).
+**What's not covered:** H100/B200, FP8 quantization, multi-GPU tensor parallelism, prefix caching, speculative decoding, AMD GPUs. Results are from L4 (24 GB), A100 40GB (dense/AWQ), and A100 80GB (MoE BF16) with Qwen2.5-7B (dense), Qwen3-8B (reasoning), and Qwen3-30B-A3B (MoE).
 
 ## Results at a Glance
 
@@ -49,15 +49,16 @@ Interactive dashboard: [llm-bench.rituraj.info](https://llm-bench.rituraj.info)
 
 ### A100 Validation (vLLM, Qwen2.5-7B)
 
-Single-GPU validation run on NVIDIA A100 80GB via Modal to cross-check L4 findings on a higher-tier GPU.
+Single-GPU validation runs on A100 via Modal to cross-check L4 findings on a higher-tier GPU.
 
-| Config | c=1 tok/s | c=16 tok/s | c=64 tok/s |
-|---|---|---|---|
-| FP16 | **92** | **1,235** | **3,310** |
-| AWQ default | 63 | 811 | 2,011 |
-| AWQ Marlin | 104 | 1,624 | 2,968 |
+| Config | GPU | vLLM | c=1 tok/s | c=16 tok/s | c=64 tok/s |
+|---|---|---|---|---|---|
+| FP16 | A100 40GB | v0.8.5 | **72** | **950** | **2,564** |
+| AWQ default | A100 40GB | v0.8.5 | 63 | 811 | 2,011 |
+| AWQ Marlin | A100 40GB | v0.8.5 | 104 | 1,624 | 2,968 |
+| FP16 spot-check | A100 80GB | v0.20.2 | **92** | **1,235** | **3,310** |
 
-_FP16 updated to vLLM v0.20.2 (T4.1 spot-check). AWQ numbers from vLLM v0.8.5. A100 80GB via Modal._
+_All main runs on A100 40GB (Modal `GPU = "A100"`). T4.1 spot-check on A100 80GB with latest vLLM confirmed +28% throughput improvement over v0.8.5._
 
 ### MoE Benchmark (vLLM v0.20.1, Qwen3-30B-A3B)
 
@@ -83,13 +84,14 @@ The throughput model in the [LLM Deploy Cost Calculator](https://llm-cost.ritura
 | AWQ c=1 per-stream | 85.4 tok/s | 43.2 tok/s | 51% |
 | FP16 c=64 aggregate | 1,294 tok/s | 914 tok/s (SGLang) | 71% |
 | FP16 c=64 aggregate | 1,294 tok/s | 831 tok/s (vLLM) | 64% |
-| FP16 c=1 per-stream (A100, v0.20.2) | 145.6 tok/s | 92.3 tok/s | 63% |
-| AWQ Marlin c=1 (A100) | 582.6 tok/s | 104.2 tok/s | 18% |
-| FP16 c=64 per-stream (A100, v0.20.2) | 145.6 tok/s | 51.7 tok/s | 36% |
+| FP16 c=1 per-stream (A100 40GB, v0.8.5) | 111 tok/s | 72.1 tok/s | 65% |
+| AWQ Marlin c=1 (A100 40GB, v0.8.5) | 444 tok/s | 104.2 tok/s | 23% |
+| FP16 c=64 per-stream (A100 40GB, v0.8.5) | 111 tok/s | 40.1 tok/s | 36% |
+| FP16 c=1 spot-check (A100 80GB, v0.20.2) | 145.6 tok/s | 92.3 tok/s | 63% |
 
 FP16 achieves 64-80% of theoretical bandwidth — the gap comes from kernel overhead, attention computation, and KV cache reads. AWQ drops to 51% due to dequantization overhead and irregular memory access patterns. The calculator's "ideal batching" assumption is real: engines achieve 64-71% of ideal at high concurrency.
 
-A100 achieves lower per-stream efficiency (36-63% vs 61-80% on L4) because at 2TB/s memory bandwidth, the bottleneck shifts from memory to compute (attention, KV cache). The higher aggregate throughput (3,310 tok/s at c=64 vs L4's 831) comes from the A100's 10x compute advantage (312 vs 31 TFLOPS), not bandwidth. AWQ Marlin on A100 is 48-64% faster than default AWQ, confirming Marlin kernels as essential for quantized inference on Ampere+ GPUs. FP16 numbers reflect vLLM v0.20.2 — a ~28% throughput improvement over v0.8.5.
+A100 40GB achieves lower per-stream efficiency (36-65% vs 61-80% on L4) because at 1.55 TB/s memory bandwidth, the bottleneck shifts from memory to compute (attention, KV cache). The higher aggregate throughput (2,564 tok/s at c=64 vs L4's 831) comes from the A100's 10x compute advantage (312 vs 31 TFLOPS), not bandwidth. AWQ Marlin on A100 is 48-64% faster than default AWQ, confirming Marlin kernels as essential for quantized inference on Ampere+ GPUs. A v0.20.2 spot-check on A100 80GB showed 92.3 tok/s at c=1 — a ~28% throughput improvement over v0.8.5 on the 40GB variant.
 
 ## Setup
 
@@ -97,7 +99,7 @@ A100 achieves lower per-stream efficiency (36-63% vs 61-80% on L4) because at 2T
 
 | Component | L4 | A100 |
 |---|---|---|
-| GPU | NVIDIA L4 (24 GB VRAM) | NVIDIA A100 (80 GB VRAM) |
+| GPU | NVIDIA L4 (24 GB VRAM) | NVIDIA A100 40GB (dense/AWQ) · A100 80GB (MoE BF16) |
 | Provider | Modal (cloud GPU, per-second billing) | Modal (cloud GPU, per-second billing) |
 | CUDA | 12.4.1 | 12.4.1 |
 

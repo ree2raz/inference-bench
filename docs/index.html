@@ -793,7 +793,7 @@ td.best { color: var(--accent); font-weight: 600; }
   <strong style="color:var(--fg)">Scope &amp; Freshness</strong>
   <span style="margin:0 0.6rem;opacity:0.3">|</span>
   Engines tested: vLLM v0.8.5 · SGLang v0.4.6 · llama.cpp Q4_K_M.
-  Hardware: NVIDIA L4 (24 GB) and A100 (80 GB) — H100 and FP8 not covered.
+  Hardware: NVIDIA L4 (24 GB) and A100 40GB (dense/AWQ) · A100 80GB (MoE BF16 only) — H100 and FP8 not covered.
   A vLLM v0.20.2 spot-check showed <strong style="color:var(--fg)">+28% absolute throughput</strong> over v0.8.5; SGLang has similarly improved since v0.4.6.
   <strong style="color:var(--fg)">Relative rankings between engines are the durable finding. Treat absolute tok/s figures as lower bounds, not current specs.</strong>
 </div>
@@ -945,27 +945,27 @@ td.best { color: var(--accent); font-weight: 600; }
 
   <div class="valid-grid" style="margin-top:1.25rem">
     <div class="valid-block">
-      <h3>Decode efficiency (Qwen2.5-7B on A100 80GB, c=1)</h3>
-      <p>A100 has 6.8x more bandwidth than L4 (2,000 vs 300 GB/s). Per-stream efficiency drops because compute becomes the bottleneck.</p>
+      <h3>Decode efficiency (Qwen2.5-7B on A100 40GB, c=1)</h3>
+      <p>A100 40GB has 5.2x more bandwidth than L4 (1,555 vs 300 GB/s). Per-stream efficiency drops because compute becomes the bottleneck.</p>
       <table class="method-card" style="width:100%;border:none;padding:0">
         <tbody>
           <tr style="border-bottom:1px solid var(--border-subtle)">
-            <td style="padding:0.4rem 0;color:var(--fg-dim);font-family:var(--font-mono);font-size:0.75rem">FP16 (vLLM)</td>
-            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right">145.6 tok/s</td>
-            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right;color:var(--vllm)">92.3 tok/s</td>
-            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.72rem;text-align:right;color:var(--fg-muted)">63%</td>
+            <td style="padding:0.4rem 0;color:var(--fg-dim);font-family:var(--font-mono);font-size:0.75rem">FP16 (vLLM v0.8.5)</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right">111 tok/s</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right;color:var(--vllm)">72.1 tok/s</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.72rem;text-align:right;color:var(--fg-muted)">65%</td>
           </tr>
           <tr style="border-bottom:1px solid var(--border-subtle)">
-            <td style="padding:0.4rem 0;color:var(--fg-dim);font-family:var(--font-mono);font-size:0.75rem">AWQ Marlin (vLLM)</td>
-            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right">582.6 tok/s</td>
+            <td style="padding:0.4rem 0;color:var(--fg-dim);font-family:var(--font-mono);font-size:0.75rem">AWQ Marlin (vLLM v0.8.5)</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right">444 tok/s</td>
             <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right;color:var(--vllm-awq)">104.2 tok/s</td>
-            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.72rem;text-align:right;color:var(--fg-muted)">18%</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.72rem;text-align:right;color:var(--fg-muted)">23%</td>
           </tr>
           <tr style="border-bottom:1px solid var(--border-subtle)">
-            <td style="padding:0.4rem 0;color:var(--fg-dim);font-family:var(--font-mono);font-size:0.75rem">AWQ default (vLLM)</td>
-            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right">582.6 tok/s</td>
+            <td style="padding:0.4rem 0;color:var(--fg-dim);font-family:var(--font-mono);font-size:0.75rem">AWQ default (vLLM v0.8.5)</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right">444 tok/s</td>
             <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right;color:var(--vllm-awq)">63.4 tok/s</td>
-            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.72rem;text-align:right;color:var(--fg-muted)">11%</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.72rem;text-align:right;color:var(--fg-muted)">14%</td>
           </tr>
           <tr>
             <td style="padding:0.4rem 0;color:var(--fg-dim);font-family:var(--font-mono);font-size:0.75rem"></td>
@@ -975,7 +975,7 @@ td.best { color: var(--accent); font-weight: 600; }
           </tr>
         </tbody>
       </table>
-      <p>A100's 2 TB/s bandwidth means the bottleneck shifts from memory to compute (attention, KV cache). Per-stream at c=64: FP16 drops to 36%, Marlin to 8%. But aggregate throughput is 4x higher than L4 (3,310 vs 831 tok/s) thanks to 10x more compute (312 vs 31 TFLOPS). FP16 numbers updated to vLLM v0.20.2.</p>
+      <p>A100 40GB's 1.55 TB/s bandwidth means the bottleneck shifts from memory to compute (attention, KV cache). Per-stream at c=64: FP16 drops to 36%, Marlin to 10%. But aggregate throughput is 3x higher than L4 (2,564 vs 831 tok/s) thanks to 10x more compute (312 vs 31 TFLOPS). All A100 40GB numbers are vLLM v0.8.5. A separate v0.20.2 spot-check on A100 80GB showed +28% over v0.8.5 — see <a href="https://github.com/ree2raz/inference-bench/blob/main/results/a100_vllm_latest_check.jsonl" style="color:var(--accent)">T4.1 results</a>.</p>
     </div>
   </div>
 </section>
@@ -1095,7 +1095,7 @@ td.best { color: var(--accent); font-weight: 600; }
   </div>
 
   <p style="font-size:0.88rem;color:var(--fg-muted);line-height:1.7;max-width:780px;margin:0 0 1.5rem">
-    Baseline hardware is <strong style="color:var(--fg)">NVIDIA L4</strong> (24 GB, Modal, per-second billing) with <strong style="color:var(--fg)">Qwen2.5-7B-Instruct</strong>. A100 and MoE regimes use an A100 80/40 GB with a different model — see the regime note below. <strong style="color:var(--fg)">c=N</strong> means N concurrent requests in flight simultaneously. <strong style="color:var(--fg)">Throughput</strong> is aggregate tokens/sec across all concurrent streams. <strong style="color:var(--fg)">TTFT</strong> is time to first token (p50). <strong style="color:var(--fg)">Latency p95</strong> is tail end-to-end time per request. Regime definitions: <em>Short</em> ≤256 input tokens · <em>Long</em> ≤2048 · <em>Reasoning</em> ~6K thinking tokens (Qwen3-8B) · <em>A100</em> = FP16/AWQ validation on A100 80GB · <em>MoE</em> = Qwen3-30B-A3B active-param study on A100. <a href="#methodology" style="color:var(--accent)">Full methodology →</a>
+    Baseline hardware is <strong style="color:var(--fg)">NVIDIA L4</strong> (24 GB, Modal, per-second billing) with <strong style="color:var(--fg)">Qwen2.5-7B-Instruct</strong>. A100 and MoE regimes use an A100 80/40 GB with a different model — see the regime note below. <strong style="color:var(--fg)">c=N</strong> means N concurrent requests in flight simultaneously. <strong style="color:var(--fg)">Throughput</strong> is aggregate tokens/sec across all concurrent streams. <strong style="color:var(--fg)">TTFT</strong> is time to first token (p50). <strong style="color:var(--fg)">Latency p95</strong> is tail end-to-end time per request. Regime definitions: <em>Short</em> ≤256 input tokens · <em>Long</em> ≤2048 · <em>Reasoning</em> ~6K thinking tokens (Qwen3-8B) · <em>A100</em> = FP16/AWQ validation on A100 40GB (v0.8.5) · <em>MoE</em> = Qwen3-30B-A3B active-param study on A100 80GB (BF16) and A100 40GB (AWQ). <a href="#methodology" style="color:var(--accent)">Full methodology →</a>
   </p>
 
   <div class="regime-toggle">
@@ -1269,9 +1269,9 @@ const DATA = {
   a100: {
     concurrencies: [1, 16, 64],
     vllm_fp16: {
-      throughput: [92.3, 1235.0, 3309.7],
-      ttft: [23, 69, 209],
-      latency_p95: [1389, 1505, 2042],
+      throughput: [72.1, 950.1, 2563.7],
+      ttft: [24, 94, 410],
+      latency_p95: [1962, 2001, 2679],
       success: [100, 100, 100],
     },
     vllm_awq: {
