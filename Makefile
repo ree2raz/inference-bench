@@ -3,7 +3,7 @@ VENV := .venv
 PYTHON := $(VENV)/bin/python
 MODAL := $(VENV)/bin/modal
 
-.PHONY: setup bench-vllm bench-sglang bench-llamacpp bench-vllm-awq bench-sglang-awq bench-qwen3 bench-reasoning bench-all-parallel report clean collect plots generate-prompts download-results
+.PHONY: setup bench-vllm bench-sglang bench-llamacpp bench-vllm-awq bench-sglang-awq bench-qwen3 bench-reasoning bench-all-parallel report clean collect plots generate-prompts download-results bench-a100-latest
 
 setup: $(VENV)
 	uv pip install modal httpx numpy matplotlib pandas pyyaml
@@ -77,6 +77,9 @@ bench-all-parallel: $(VENV)
 	$(MODAL) run modal_llamacpp.py & \
 	wait
 	@echo "All engines complete."
+
+bench-a100-latest: $(VENV)
+	$(MODAL) run modal_vllm_latest_check.py
 
 download-results: $(VENV)
 	mkdir -p results/raw
