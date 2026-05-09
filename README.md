@@ -333,7 +333,7 @@ inference-bench/
 ## See Also
 
 - **[LLM Deploy Cost Calculator](https://llm-cost.rituraj.info)** — GPU sizing, cost comparison, and break-even analysis for LLM deployment. The throughput model in this calculator is validated by the benchmarks above.
-- **[Blog: What your LLM cost calculator is getting wrong](https://www.rituraj.info/posts/on-prem-llm-deployment-cto/)** — The five questions a CTO should ask before approving on-prem LLM deployment.
+- **[Blog: Four numbers that change your LLM self-hosting cost estimate](https://www.rituraj.info/posts/on-prem-llm-deployment-cto/)** — Total params for MoE VRAM, KV cache dtype, throughput bottleneck, and replica count — the four things most cost estimates get wrong.
 
 ## License
 
