@@ -788,6 +788,16 @@ td.best { color: var(--accent); font-weight: 600; }
   </div>
 </section>
 
+<!-- ════════ SCOPE CALLOUT ════════ -->
+<div style="max-width:900px;margin:2.5rem auto 0;padding:1rem 1.25rem;background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:6px;font-size:0.84rem;line-height:1.75;color:var(--fg-muted)">
+  <strong style="color:var(--fg)">Scope &amp; Freshness</strong>
+  <span style="margin:0 0.6rem;opacity:0.3">|</span>
+  Engines tested: vLLM v0.8.5 · SGLang v0.4.6 · llama.cpp Q4_K_M.
+  Hardware: NVIDIA L4 (24 GB) and A100 (80 GB) — H100 and FP8 not covered.
+  A vLLM v0.20.2 spot-check showed <strong style="color:var(--fg)">+28% absolute throughput</strong> over v0.8.5; SGLang has similarly improved since v0.4.6.
+  <strong style="color:var(--fg)">Relative rankings between engines are the durable finding. Treat absolute tok/s figures as lower bounds, not current specs.</strong>
+</div>
+
 <!-- ════════ WHERE EACH WINS ════════ -->
 <section id="recommendations">
   <div class="section-head">
@@ -834,26 +844,32 @@ td.best { color: var(--accent); font-weight: 600; }
     <li>
       <h4>SGLang leads throughput; vLLM leads first-token latency</h4>
       <p>At c=64 short, SGLang hits 914 tok/s vs vLLM's 831 tok/s (+10%). But at c=1, vLLM's TTFT is 70 ms vs SGLang's 119 ms (42% faster first token). The tradeoff: SGLang for aggregate throughput, vLLM for interactive responsiveness. Both maintain ~13-17 tok/s per-request regardless of concurrency, confirming effective continuous batching.</p>
+      <p style="font-size:0.82rem;margin-top:0.5rem"><strong style="color:var(--accent)">When this matters:</strong> <span style="color:var(--fg-muted)">User-facing chatbots and copilots → vLLM. Background API serving, batch summarization, high-concurrency pipelines → SGLang.</span></p>
     </li>
     <li>
       <h4>AWQ quantization on vLLM is a free lunch</h4>
       <p>vLLM AWQ delivers 43 tok/s at c=1 (2.5x FP16) while using only 5.2 GB VRAM vs 15 GB. At c=64, it hits 976 tok/s (+17% over FP16 vLLM). AWQ's memory savings become critical for reasoning workloads where KV caches hold 8K+ token sequences — AWQ vLLM reaches 345 tok/s at c=16, 2.4x faster than FP16 SGLang (147 tok/s). The one exception: SGLang AWQ suffers a torch 2.5.1 compatibility issue, degrading to 8 tok/s at c=1.</p>
+      <p style="font-size:0.82rem;margin-top:0.5rem"><strong style="color:var(--accent)">When this matters:</strong> <span style="color:var(--fg-muted)">Almost always — use AWQ on vLLM if a pre-quantized checkpoint exists. Skip only if your pipeline requires exact FP16 outputs or your GPU predates Ampere.</span></p>
     </li>
     <li>
       <h4>llama.cpp wins at c=1, loses at scale</h4>
       <p>At c=1 short, Q4_K_M achieves 47 tok/s with 2.7 s p95 latency (2.8x faster E2E than FP16 engines). But limited parallelism (<code>--parallel 4</code>) means throughput plateaus at 190 tok/s by c=64, and long-regime success rate drops to 55%. Best for edge, embedded, and low-concurrency use cases where its ~4.4 GB footprint matters.</p>
+      <p style="font-size:0.82rem;margin-top:0.5rem"><strong style="color:var(--accent)">When this matters:</strong> <span style="color:var(--fg-muted)">Edge devices, CPU-only servers, developer laptops, or any context where VRAM is the binding constraint. Not suited for production API serving above c=4.</span></p>
     </li>
     <li>
       <h4>Reasoning workloads change the metric</h4>
       <p>With Qwen3-8B generating ~6,000 thinking tokens per request, first <em>answer</em> token (after thinking) takes 145-664 seconds. Qwen3 AWQ vLLM at c=4 delivers the answer in 145 s — 4.6x faster than Qwen3 SGLang at c=16 (664 s). For thinking models, "time to useful output" is the metric that matters, not TTFT.</p>
+      <p style="font-size:0.82rem;margin-top:0.5rem"><strong style="color:var(--accent)">When this matters:</strong> <span style="color:var(--fg-muted)">Any deployment of thinking models (DeepSeek-R1, Qwen3 thinking mode). Don't benchmark TTFT — benchmark time-to-first-answer-token. The difference is 145 s vs 664 s in this data.</span></p>
     </li>
     <li>
       <h4>Long regime amplifies every difference</h4>
       <p>At c=64 long, SGLang's 840 tok/s is 8% faster than vLLM's 777 tok/s, with 9% lower p95 latency (40 s vs 44 s). llama.cpp drops to 55% success. Longer sequences stress KV cache management, batching efficiency, and memory bandwidth — making engine choice more consequential.</p>
+      <p style="font-size:0.82rem;margin-top:0.5rem"><strong style="color:var(--accent)">When this matters:</strong> <span style="color:var(--fg-muted)">RAG pipelines, document summarization, long-context chat. Engine choice matters more at long context — the gap between engines widens as sequence length grows.</span></p>
     </li>
     <li>
       <h4>MoE decode tracks active parameters, not total — but expert routing has overhead</h4>
       <p>Qwen3-30B-A3B has 30.5B total parameters but only 3.3B active per token. The question: does decode speed track total params or active params? Active params wins. BF16 at c=1 on A100 80GB delivers 134 tok/s vs 92 tok/s for dense 7B on the same GPU (1.5x faster) — tracking active params, not total. But the efficiency gap is significant: MoE BF16 achieves 46% memory-bandwidth efficiency vs dense FP16's 63% (vLLM v0.20.2), because expert routing adds irregular memory access that ideal batching cannot hide. AWQ Marlin efficiency drops further to 11–18% from combined dequantization and expert-load overhead. The practical implication: model MoE deployments on active parameters for throughput, total parameters for VRAM, and budget 10–20% for routing overhead the calculator cannot fully capture. One hard constraint: BF16 c=16 OOMs on A100 80GB — 61 GB weights plus KV cache exceeds the 80 GB limit.</p>
+      <p style="font-size:0.82rem;margin-top:0.5rem"><strong style="color:var(--accent)">When this matters:</strong> <span style="color:var(--fg-muted)">Any MoE deployment — Qwen3-30B-A3B, DeepSeek V3/V4, Mixtral. Size VRAM on total parameters, throughput on active parameters. Most cost calculators use the wrong number for one of these.</span></p>
     </li>
   </ol>
 </section>

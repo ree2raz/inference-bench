@@ -8,6 +8,22 @@ Reproducible head-to-head benchmarks of **vLLM**, **SGLang**, and **llama.cpp** 
 
 **Companion artifact:** This benchmark validates the throughput model in the [LLM Deploy Cost Calculator](https://llm-cost.rituraj.info) — same GPU, same model, theoretical vs measured.
 
+## TL;DR — Pick Your Engine
+
+| Use case | Engine | Key number |
+|---|---|---|
+| Interactive chatbot / copilot | **vLLM** | 42% lower TTFT at c=1 (70 ms vs 119 ms) |
+| High-throughput API / batch job | **SGLang** | +10% aggregate throughput at c=64 (914 vs 831 tok/s) |
+| Edge / memory-constrained | **llama.cpp** | 4.4 GB VRAM, fastest single-request E2E latency |
+| Reasoning / thinking models | **vLLM AWQ** | 4.6x faster time-to-answer vs SGLang (145 s vs 664 s at c=4) |
+| MoE models (Qwen3-MoE, DeepSeek) | **vLLM** | Size VRAM on total params, throughput on active params |
+
+**AWQ on vLLM is almost always worth it** — 2.5x throughput, 1/3 VRAM, no meaningful downside if a pre-quantized checkpoint exists.
+
+**What to trust:** Relative rankings between engines are the durable finding — they reflect architectural differences, not version-specific numbers. Absolute tok/s figures are lower bounds: a vLLM v0.20.2 spot-check on A100 showed +28% over the v0.8.5 numbers here. SGLang has similarly improved. See [Limitations](#limitations) for full scope.
+
+**What's not covered:** H100/B200, FP8 quantization, multi-GPU tensor parallelism, prefix caching, speculative decoding, AMD GPUs. Results are from L4 (24 GB) and A100 (80 GB) with Qwen2.5-7B (dense), Qwen3-8B (reasoning), and Qwen3-30B-A3B (MoE).
+
 ## Results at a Glance
 
 **Short regime (c=64, Qwen2.5-7B)**:
