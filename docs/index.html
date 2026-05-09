@@ -853,7 +853,7 @@ td.best { color: var(--accent); font-weight: 600; }
     </li>
     <li>
       <h4>MoE decode tracks active parameters, not total — but expert routing has overhead</h4>
-      <p>Qwen3-30B-A3B has 30.5B total parameters but only 3.3B active per token. The question: does decode speed track total params or active params? Active params wins. BF16 at c=1 on A100 80GB delivers 134 tok/s vs 72 tok/s for dense 7B on the same GPU (1.9x faster) — matching the ~9x active-param ratio directionally. But the gap to theoretical is real: MoE BF16 achieves 46% memory-bandwidth efficiency vs dense FP16's 50%, because expert routing adds irregular memory access that ideal batching cannot hide. AWQ Marlin efficiency drops further to 11–18% from combined dequantization and expert-load overhead. The practical implication: model MoE deployments on active parameters for throughput, total parameters for VRAM, and budget 10–20% for routing overhead the calculator cannot fully capture. One hard constraint: BF16 c=16 OOMs on A100 80GB — 61 GB weights plus KV cache exceeds the 80 GB limit.</p>
+      <p>Qwen3-30B-A3B has 30.5B total parameters but only 3.3B active per token. The question: does decode speed track total params or active params? Active params wins. BF16 at c=1 on A100 80GB delivers 134 tok/s vs 92 tok/s for dense 7B on the same GPU (1.5x faster) — tracking active params, not total. But the efficiency gap is significant: MoE BF16 achieves 46% memory-bandwidth efficiency vs dense FP16's 63% (vLLM v0.20.2), because expert routing adds irregular memory access that ideal batching cannot hide. AWQ Marlin efficiency drops further to 11–18% from combined dequantization and expert-load overhead. The practical implication: model MoE deployments on active parameters for throughput, total parameters for VRAM, and budget 10–20% for routing overhead the calculator cannot fully capture. One hard constraint: BF16 c=16 OOMs on A100 80GB — 61 GB weights plus KV cache exceeds the 80 GB limit.</p>
     </li>
   </ol>
 </section>
@@ -936,8 +936,8 @@ td.best { color: var(--accent); font-weight: 600; }
           <tr style="border-bottom:1px solid var(--border-subtle)">
             <td style="padding:0.4rem 0;color:var(--fg-dim);font-family:var(--font-mono);font-size:0.75rem">FP16 (vLLM)</td>
             <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right">145.6 tok/s</td>
-            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right;color:var(--vllm)">72.1 tok/s</td>
-            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.72rem;text-align:right;color:var(--fg-muted)">50%</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right;color:var(--vllm)">92.3 tok/s</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.72rem;text-align:right;color:var(--fg-muted)">63%</td>
           </tr>
           <tr style="border-bottom:1px solid var(--border-subtle)">
             <td style="padding:0.4rem 0;color:var(--fg-dim);font-family:var(--font-mono);font-size:0.75rem">AWQ Marlin (vLLM)</td>
@@ -959,7 +959,7 @@ td.best { color: var(--accent); font-weight: 600; }
           </tr>
         </tbody>
       </table>
-      <p>A100's 2 TB/s bandwidth means the bottleneck shifts from memory to compute (attention, KV cache). Per-stream at c=64: FP16 drops to 28%, Marlin to 8%. But aggregate throughput is 3.1x higher than L4 (2,564 vs 831 tok/s) thanks to 10x more compute (312 vs 31 TFLOPS).</p>
+      <p>A100's 2 TB/s bandwidth means the bottleneck shifts from memory to compute (attention, KV cache). Per-stream at c=64: FP16 drops to 36%, Marlin to 8%. But aggregate throughput is 4x higher than L4 (3,310 vs 831 tok/s) thanks to 10x more compute (312 vs 31 TFLOPS). FP16 numbers updated to vLLM v0.20.2.</p>
     </div>
   </div>
 </section>
@@ -1253,9 +1253,9 @@ const DATA = {
   a100: {
     concurrencies: [1, 16, 64],
     vllm_fp16: {
-      throughput: [72.1, 950.1, 2563.7],
-      ttft: [24, 94, 410],
-      latency_p95: [1962, 2001, 2679],
+      throughput: [92.3, 1235.0, 3309.7],
+      ttft: [23, 69, 209],
+      latency_p95: [1389, 1505, 2042],
       success: [100, 100, 100],
     },
     vllm_awq: {

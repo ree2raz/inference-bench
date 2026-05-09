@@ -35,11 +35,11 @@ Single-GPU validation run on NVIDIA A100 80GB via Modal to cross-check L4 findin
 
 | Config | c=1 tok/s | c=16 tok/s | c=64 tok/s |
 |---|---|---|---|
-| FP16 | 72 | 950 | 2,564 |
+| FP16 | **92** | **1,235** | **3,310** |
 | AWQ default | 63 | 811 | 2,011 |
 | AWQ Marlin | 104 | 1,624 | 2,968 |
 
-_N=1 per config (validation run, not full benchmark suite). vLLM v0.8.5, A100 80GB via Modal._
+_FP16 updated to vLLM v0.20.2 (T4.1 spot-check). AWQ numbers from vLLM v0.8.5. A100 80GB via Modal._
 
 ### MoE Benchmark (vLLM v0.20.1, Qwen3-30B-A3B)
 
@@ -53,7 +53,7 @@ Tests the decode efficiency of mixture-of-experts models. Qwen3-30B-A3B has 30.5
 
 _† BF16 c=16 not feasible — 61 GB weights exhausts 80 GB VRAM with KV cache._
 
-**Key finding:** MoE decode throughput is ~2-3x faster than dense 7B on the same GPU class. At c=1 on A100, MoE BF16 delivers 134 tok/s vs dense 7B's 72 tok/s (1.9x). MoE AWQ at c=16 hits 1,476 tok/s vs dense AWQ's 811 tok/s on A100 40GB (1.8x). However, the gap to theoretical (based on active params) is significant — MoE BF16 achieves 46% efficiency vs dense FP16's 50% on A100, with expert routing overhead consuming the remaining bandwidth. AWQ Marlin MoE efficiency drops to 11-18% due to the combined overhead of dequantization and expert loading. **Long context (16K) has negligible impact** on short-prompt throughput — the KV cache growth doesn't affect decode speed until sequences actually approach the limit.
+**Key finding:** MoE decode throughput is ~2-3x faster than dense 7B on the same GPU class. At c=1 on A100, MoE BF16 delivers 134 tok/s vs dense 7B's 92 tok/s (1.5x, vLLM v0.20.2). MoE AWQ at c=16 hits 1,476 tok/s vs dense AWQ's 811 tok/s on A100 40GB (1.8x). However, the efficiency gap is significant — MoE BF16 achieves 46% efficiency vs dense FP16's 63% on A100 (both relative to their active-param theoretical bandwidth), with expert routing overhead consuming the remaining bandwidth. AWQ Marlin MoE efficiency drops to 11-18% due to the combined overhead of dequantization and expert loading. **Long context (16K) has negligible impact** on short-prompt throughput — the KV cache growth doesn't affect decode speed until sequences actually approach the limit.
 
 ## Validated by Real Benchmarks
 
@@ -65,13 +65,13 @@ The throughput model in the [LLM Deploy Cost Calculator](https://llm-cost.ritura
 | AWQ c=1 per-stream | 85.4 tok/s | 43.2 tok/s | 51% |
 | FP16 c=64 aggregate | 1,294 tok/s | 914 tok/s (SGLang) | 71% |
 | FP16 c=64 aggregate | 1,294 tok/s | 831 tok/s (vLLM) | 64% |
-| FP16 c=1 per-stream (A100) | 145.6 tok/s | 72.1 tok/s | 50% |
+| FP16 c=1 per-stream (A100, v0.20.2) | 145.6 tok/s | 92.3 tok/s | 63% |
 | AWQ Marlin c=1 (A100) | 582.6 tok/s | 104.2 tok/s | 18% |
-| FP16 c=64 per-stream (A100) | 145.6 tok/s | 40.1 tok/s | 28% |
+| FP16 c=64 per-stream (A100, v0.20.2) | 145.6 tok/s | 51.7 tok/s | 36% |
 
 FP16 achieves 64-80% of theoretical bandwidth — the gap comes from kernel overhead, attention computation, and KV cache reads. AWQ drops to 51% due to dequantization overhead and irregular memory access patterns. The calculator's "ideal batching" assumption is real: engines achieve 64-71% of ideal at high concurrency.
 
-A100 achieves lower per-stream efficiency (28-50% vs 61-80% on L4) because at 2TB/s memory bandwidth, the bottleneck shifts from memory to compute (attention, KV cache). The higher aggregate throughput (2,564 tok/s at c=64 vs L4's 831) comes from the A100's 10x compute advantage (312 vs 31 TFLOPS), not bandwidth. AWQ Marlin on A100 is 48-64% faster than default AWQ, confirming Marlin kernels as essential for quantized inference on Ampere+ GPUs.
+A100 achieves lower per-stream efficiency (36-63% vs 61-80% on L4) because at 2TB/s memory bandwidth, the bottleneck shifts from memory to compute (attention, KV cache). The higher aggregate throughput (3,310 tok/s at c=64 vs L4's 831) comes from the A100's 10x compute advantage (312 vs 31 TFLOPS), not bandwidth. AWQ Marlin on A100 is 48-64% faster than default AWQ, confirming Marlin kernels as essential for quantized inference on Ampere+ GPUs. FP16 numbers reflect vLLM v0.20.2 — a ~28% throughput improvement over v0.8.5.
 
 ## Setup
 
@@ -230,7 +230,7 @@ Already-completed configs are automatically skipped — re-running resumes from 
 
 5. **Long regime amplifies every difference.** At c=64 long, SGLang is 8% faster than vLLM with 9% lower p95 latency. llama.cpp drops to 55% success. Longer sequences stress KV cache management and batching efficiency.
 
-6. **MoE models punch above their weight class.** Qwen3-30B-A3B (3.3B active) on A100 achieves 134 tok/s BF16 at c=1 and 1,476 tok/s AWQ at c=16 — 1.9x and 1.8x faster than dense 7B on the same GPU. The active-params model holds: MoE decode throughput scales with active parameters, not total parameters. But expert routing overhead is real — MoE BF16 achieves only 46% of theoretical bandwidth vs dense FP16's 50%, and AWQ Marlin MoE drops to 11-18% due to combined dequantization + expert loading overhead. Long context (16K) has no measurable impact on short-prompt throughput.
+6. **MoE models punch above their weight class.** Qwen3-30B-A3B (3.3B active) on A100 achieves 134 tok/s BF16 at c=1 and 1,476 tok/s AWQ at c=16 — 1.5x and 1.8x faster than dense 7B on the same GPU (dense baseline updated to vLLM v0.20.2). The active-params model holds: MoE decode throughput scales with active parameters, not total parameters. But expert routing overhead is real — MoE BF16 achieves only 46% of theoretical bandwidth vs dense FP16's 63% (vLLM v0.20.2), and AWQ Marlin MoE drops to 11-18% due to combined dequantization + expert loading overhead. Long context (16K) has no measurable impact on short-prompt throughput.
 
 ## What This Doesn't Measure
 
