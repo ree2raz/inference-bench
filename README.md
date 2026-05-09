@@ -1,5 +1,7 @@
 # Inference Bench — LLM Serving Benchmark Suite
 
+**[Dashboard →](https://llm-bench.rituraj.info)** · **[Calculator →](https://llm-cost.rituraj.info)** · **[Blog post →](https://rituraj.info/posts/on-prem-llm-deployment-cto/)**
+
 Reproducible head-to-head benchmarks of **vLLM**, **SGLang**, and **llama.cpp** across FP16, AWQ quantization, reasoning workloads, and **MoE models** on NVIDIA L4 and A100 GPUs (via Modal). 12 engine configs, 4 workload regimes, 113 benchmark runs. Measures throughput, TTFT/TPOT, tail latency, and success rate.
 
 **Headline finding:** _SGLang leads aggregate throughput (+10% over vLLM at c=64). vLLM leads first-token latency (42% faster TTFT at c=1). AWQ quantization on vLLM is a free lunch — 2.5x throughput, 1/3 VRAM. MoE models (Qwen3-30B-A3B) achieve 3-4x faster decode than dense 7B on the same GPU by exploiting the 3.3B active parameter budget._
