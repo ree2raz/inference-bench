@@ -110,6 +110,79 @@ def make_sglang_awq_image():
     )
 
 
+# v2 server arg lists — matches modal_vllm_latest_check.py pattern.
+# vLLM v0.20.x uses `vllm serve` and renames --disable-log-requests to --no-enable-log-requests.
+VLLM_V2_SERVER_ARGS = [
+    "vllm", "serve", MODEL_FP16,
+    "--host", "0.0.0.0", "--port", "8000",
+    "--max-num-seqs", "64",
+    "--dtype", "auto",
+    "--gpu-memory-utilization", "0.90",
+    "--no-enable-log-requests",
+]
+
+VLLM_V2_AWQ_SERVER_ARGS = [
+    "vllm", "serve", MODEL_AWQ,
+    "--host", "0.0.0.0", "--port", "8000",
+    "--max-num-seqs", "64",
+    "--quantization", "awq",
+    "--dtype", "auto",
+    "--gpu-memory-utilization", "0.90",
+    "--no-enable-log-requests",
+]
+
+VLLM_V2_MARLIN_SERVER_ARGS = [
+    "vllm", "serve", MODEL_AWQ,
+    "--host", "0.0.0.0", "--port", "8000",
+    "--max-num-seqs", "64",
+    "--quantization", "awq_marlin",
+    "--dtype", "auto",
+    "--gpu-memory-utilization", "0.90",
+    "--no-enable-log-requests",
+]
+
+QWEN3_VLLM_V2_SERVER_ARGS = [
+    "vllm", "serve", MODEL_QWEN3,
+    "--host", "0.0.0.0", "--port", "8000",
+    "--max-num-seqs", "32",
+    "--max-model-len", "16384",
+    "--dtype", "auto",
+    "--gpu-memory-utilization", "0.90",
+    "--reasoning-parser", "deepseek_r1",
+    "--no-enable-log-requests",
+]
+
+
+def make_vllm_v2_image():
+    """v2 sweep: vLLM v0.20.1 (May 2026)."""
+    return (
+        modal.Image.from_registry(
+            "vllm/vllm-openai:v0.20.1",
+            setup_dockerfile_commands=_SYMLINK_PYTHON,
+        )
+        .entrypoint([])
+        .pip_install("httpx>=0.27", "numpy>=1.26")
+        .env({"HF_HOME": "/hf_cache"})
+        .add_local_python_source("bench_lib")
+        .add_local_file(_WORKLOAD_LOCAL, remote_path="/opt/prompts/workload.jsonl")
+    )
+
+
+def make_sglang_v2_image():
+    """v2 sweep: SGLang :latest (May 2026)."""
+    return (
+        modal.Image.from_registry(
+            "lmsysorg/sglang:latest",
+            setup_dockerfile_commands=_SYMLINK_PYTHON,
+        )
+        .entrypoint([])
+        .pip_install("httpx>=0.27", "numpy>=1.26")
+        .env({"HF_HOME": "/hf_cache"})
+        .add_local_python_source("bench_lib")
+        .add_local_file(_WORKLOAD_LOCAL, remote_path="/opt/prompts/workload.jsonl")
+    )
+
+
 def make_sglang_moe_image():
     return (
         modal.Image.from_registry(
