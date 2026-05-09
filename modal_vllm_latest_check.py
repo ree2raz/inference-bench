@@ -30,7 +30,8 @@ GPU = "A100-80GB"
 CONCURRENCIES = [1, 16, 64]
 REGIME = "short"
 VLLM_IMAGE = "vllm/vllm-openai:latest"
-RESULT_FILE = "results/a100_vllm_latest_check.jsonl"
+RESULT_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "results", "a100_vllm_latest_check.jsonl")
+VOLUME_RESULT_FILE = "/results/a100_vllm_latest_check.jsonl"
 
 BASELINE = {
     1:  {"throughput": 72.1,   "ttft_p50": 0.024, "latency_p95": 1.96},
@@ -108,6 +109,13 @@ class LatestVLLMCheck:
             ttft = r.get("ttft_p50", "N/A")
             lat = r.get("latency_p95", "N/A")
             print(f"     throughput={tp:.1f} tok/s  ttft_p50={ttft}  lat_p95={lat}")
+
+        # Write to volume — guaranteed path since /results is mounted
+        with open(VOLUME_RESULT_FILE, "w") as f:
+            for r in results:
+                f.write(json.dumps(r) + "\n")
+        results_vol.commit()
+        print(f"\n  Written {len(results)} results → {VOLUME_RESULT_FILE}")
         return results
 
     @modal.exit()
@@ -130,8 +138,8 @@ def main():
     bench = LatestVLLMCheck()
     results = bench.run_all.remote()
 
-    # Save
-    os.makedirs("results", exist_ok=True)
+    # Save locally (absolute path — safe regardless of CWD)
+    os.makedirs(os.path.dirname(RESULT_FILE), exist_ok=True)
     with open(RESULT_FILE, "w") as f:
         for r in results:
             f.write(json.dumps(r) + "\n")
