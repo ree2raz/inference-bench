@@ -749,10 +749,16 @@ td.best { color: var(--accent); font-weight: 600; }
   </div>
   <h1>vLLM vs SGLang vs llama.cpp<br><span class="thin">FP16, AWQ &amp; Reasoning on NVIDIA L4 + A100</span></h1>
   <p class="hero-sub">
-    Head-to-head LLM serving benchmark across five engine configurations, four workload regimes 
-    (short, long, reasoning, A100), and concurrency levels from 1 to 64. FP16 and AWQ quantization 
-    tested on the same hardware, plus Qwen3 reasoning with thinking tokens and A100 80GB validation.
-    All runs on Modal cloud GPU. No cherry-picking — the numbers speak.
+    113 benchmark runs across vLLM v0.8.5, SGLang v0.4.6, and llama.cpp on NVIDIA L4 (24 GB) and A100 GPUs via Modal.
+    Model: Qwen2.5-7B FP16 and AWQ, Qwen3-8B reasoning, Qwen3-30B-A3B MoE.
+    Concurrency 1–64. Relative engine rankings are the durable finding — absolute tok/s are lower bounds
+    (a v0.20.2 spot-check showed +28% over these v0.8.5 numbers).
+  </p>
+  <p style="font-size:0.82rem;color:var(--fg-dim);margin:0.5rem 0 1.25rem;text-align:center">
+    <a href="#recommendations" style="color:var(--accent)">Which engine to pick</a> &nbsp;·&nbsp;
+    <a href="#results" style="color:var(--accent)">Explore the charts</a> &nbsp;·&nbsp;
+    <a href="#findings" style="color:var(--accent)">Key findings</a> &nbsp;·&nbsp;
+    <a href="#limitations" style="color:var(--accent)">Limitations</a>
   </p>
   <div class="hero-winners" style="grid-template-columns: repeat(6, 1fr);">
     <div class="winner-block vllm_awq">
