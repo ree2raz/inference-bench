@@ -851,6 +851,10 @@ td.best { color: var(--accent); font-weight: 600; }
       <h4>Long regime amplifies every difference</h4>
       <p>At c=64 long, SGLang's 840 tok/s is 8% faster than vLLM's 777 tok/s, with 9% lower p95 latency (40 s vs 44 s). llama.cpp drops to 55% success. Longer sequences stress KV cache management, batching efficiency, and memory bandwidth — making engine choice more consequential.</p>
     </li>
+    <li>
+      <h4>MoE decode tracks active parameters, not total — but expert routing has overhead</h4>
+      <p>Qwen3-30B-A3B has 30.5B total parameters but only 3.3B active per token. The question: does decode speed track total params or active params? Active params wins. BF16 at c=1 on A100 80GB delivers 134 tok/s vs 72 tok/s for dense 7B on the same GPU (1.9x faster) — matching the ~9x active-param ratio directionally. But the gap to theoretical is real: MoE BF16 achieves 46% memory-bandwidth efficiency vs dense FP16's 50%, because expert routing adds irregular memory access that ideal batching cannot hide. AWQ Marlin efficiency drops further to 11–18% from combined dequantization and expert-load overhead. The practical implication: model MoE deployments on active parameters for throughput, total parameters for VRAM, and budget 10–20% for routing overhead the calculator cannot fully capture. One hard constraint: BF16 c=16 OOMs on A100 80GB — 61 GB weights plus KV cache exceeds the 80 GB limit.</p>
+    </li>
   </ol>
 </section>
 
@@ -1073,6 +1077,10 @@ td.best { color: var(--accent); font-weight: 600; }
     <h2>Results</h2>
     <p>Throughput, first-token latency, and tail latency across concurrency sweeps.</p>
   </div>
+
+  <p style="font-size:0.88rem;color:var(--fg-muted);line-height:1.7;max-width:780px;margin:0 0 1.5rem">
+    Baseline hardware is <strong style="color:var(--fg)">NVIDIA L4</strong> (24 GB, Modal, per-second billing) with <strong style="color:var(--fg)">Qwen2.5-7B-Instruct</strong>. A100 and MoE regimes use an A100 80/40 GB with a different model — see the regime note below. <strong style="color:var(--fg)">c=N</strong> means N concurrent requests in flight simultaneously. <strong style="color:var(--fg)">Throughput</strong> is aggregate tokens/sec across all concurrent streams. <strong style="color:var(--fg)">TTFT</strong> is time to first token (p50). <strong style="color:var(--fg)">Latency p95</strong> is tail end-to-end time per request. Regime definitions: <em>Short</em> ≤256 input tokens · <em>Long</em> ≤2048 · <em>Reasoning</em> ~6K thinking tokens (Qwen3-8B) · <em>A100</em> = FP16/AWQ validation on A100 80GB · <em>MoE</em> = Qwen3-30B-A3B active-param study on A100. <a href="#methodology" style="color:var(--accent)">Full methodology →</a>
+  </p>
 
   <div class="regime-toggle">
     <button class="regime-btn active" data-regime="short">Short regime</button>
