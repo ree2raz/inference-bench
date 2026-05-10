@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 results/raw/
+results/raw_v2/
 results/plots/
 *.egg-info/
 .DS_Store
