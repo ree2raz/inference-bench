@@ -2,7 +2,7 @@
 
 **[Dashboard →](https://llm-bench.rituraj.info)** · **[Calculator →](https://llm-cost.rituraj.info)** · **[Blog post →](https://rituraj.info/posts/on-prem-llm-deployment-cto/)**
 
-Reproducible head-to-head benchmarks of **vLLM**, **SGLang**, and **llama.cpp** across FP16, AWQ quantization, reasoning workloads, and **MoE models** on NVIDIA L4 and A100 GPUs (via Modal). 12 engine configs, 4 workload regimes, 113 benchmark runs. Measures throughput, TTFT/TPOT, tail latency, and success rate.
+Reproducible head-to-head benchmarks of **vLLM**, **SGLang**, and **llama.cpp** across FP16, AWQ quantization, reasoning workloads, and **MoE models** on NVIDIA L4 and A100 GPUs (via Modal). 12 engine configs, 4 workload regimes, 125 benchmark runs. Measures throughput, TTFT/TPOT, tail latency, and success rate.
 
 **Headline finding:** _SGLang leads aggregate throughput (+10% over vLLM at c=64). vLLM leads first-token latency (42% faster TTFT at c=1). AWQ quantization on vLLM is a free lunch — 2.5x throughput, 1/3 VRAM. MoE models (Qwen3-30B-A3B) achieve 3-4x faster decode than dense 7B on the same GPU by exploiting the 3.3B active parameter budget._
 
@@ -20,7 +20,7 @@ Reproducible head-to-head benchmarks of **vLLM**, **SGLang**, and **llama.cpp** 
 
 **AWQ on vLLM is almost always worth it** — 2.5x throughput, 1/3 VRAM, no meaningful downside if a pre-quantized checkpoint exists.
 
-**What to trust:** Relative rankings between engines are the durable finding — they reflect architectural differences, not version-specific numbers. Absolute tok/s figures are lower bounds: a vLLM v0.20.2 spot-check on A100 showed +28% over the v0.8.5 numbers here. SGLang has similarly improved. See [Limitations](#limitations) for full scope.
+**What to trust:** Relative rankings between engines on L4 are the durable finding — they reflect architectural differences, not version-specific numbers. A May 2026 v2 sweep (vLLM v0.20.1 + SGLang :latest) confirmed L4 numbers stable within 3%; the A100 tab on the dashboard uses the v2 numbers. See [Limitations](#limitations) for full scope.
 
 **What's not covered:** H100/B200, FP8 quantization, multi-GPU tensor parallelism, prefix caching, speculative decoding, AMD GPUs. Results are from L4 (24 GB), A100 40GB (dense/AWQ), and A100 80GB (MoE BF16) with Qwen2.5-7B (dense), Qwen3-8B (reasoning), and Qwen3-30B-A3B (MoE).
 
@@ -47,18 +47,18 @@ Reproducible head-to-head benchmarks of **vLLM**, **SGLang**, and **llama.cpp** 
 
 Interactive dashboard: [llm-bench.rituraj.info](https://llm-bench.rituraj.info)
 
-### A100 Validation (vLLM, Qwen2.5-7B)
+### A100 Benchmark (vLLM v0.20.1 + SGLang :latest, Qwen2.5-7B)
 
-Single-GPU validation runs on A100 via Modal to cross-check L4 findings on a higher-tier GPU.
+May 2026 sweep on A100 40GB with current engine versions — both engines, FP16 and AWQ Marlin.
 
-| Config | GPU | vLLM | c=1 tok/s | c=16 tok/s | c=64 tok/s |
-|---|---|---|---|---|---|
-| FP16 | A100 40GB | v0.8.5 | **72** | **950** | **2,564** |
-| AWQ default | A100 40GB | v0.8.5 | 63 | 811 | 2,011 |
-| AWQ Marlin | A100 40GB | v0.8.5 | 104 | 1,624 | 2,968 |
-| FP16 spot-check | A100 80GB | v0.20.2 | **92** | **1,235** | **3,310** |
+| Config | Engine | c=1 tok/s | c=16 tok/s | c=64 tok/s |
+|---|---|---|---|---|
+| FP16 | vLLM v0.20.1 | **80** | **1,094** | **3,102** |
+| FP16 | SGLang :latest | 61 | 829 | 2,141 |
+| AWQ Marlin | vLLM v0.20.1 | **177** | **2,248** | **4,762** |
+| AWQ Marlin | SGLang :latest | 195 | 2,325 | 2,231 |
 
-_All main runs on A100 40GB (Modal `GPU = "A100"`). T4.1 spot-check on A100 80GB with latest vLLM confirmed +28% throughput improvement over v0.8.5._
+**Key findings from v2 sweep:** vLLM v0.20.1 FP16 is +11% faster than v0.8.5 at c=1 (80 vs 72 tok/s) and +21% at c=64. Marlin kernels improved +70% in v0.20.1 (177 vs 104 tok/s). On A100, vLLM leads SGLang at high concurrency — SGLang Marlin collapses to 2,231 tok/s at c=64 vs vLLM's 4,762 tok/s, the opposite of the L4 pattern where SGLang wins at c=64.
 
 ### MoE Benchmark (vLLM v0.20.1, Qwen3-30B-A3B)
 
@@ -115,19 +115,21 @@ A100 40GB achieves lower per-stream efficiency (36-65% vs 61-80% on L4) because 
 
 ### Engine Versions
 
-| Engine | Version | Key Flags |
-|---|---|---|
-| vLLM | v0.8.5 | `--max-num-seqs 64 --gpu-mem-util 0.90` |
-| SGLang | v0.4.6 | `--max-running-req 64 --mem-frac 0.85 --disable-cuda-graph` |
-| llama.cpp | b5540 | `-np 4 --parallel 4 -ngl 99 -c 16384` |
-| vLLM AWQ | v0.8.5 | `--quantization awq --enforce-eager` |
-| SGLang AWQ | v0.4.6 | `--quantization awq --disable-cuda-graph` |
-| Qwen3 vLLM | v0.8.5 | `--reasoning-parser deepseek_r1 --max-model-len 16384` |
-| Qwen3 SGLang | v0.4.6 | `--reasoning-parser deepseek-r1 --disable-cuda-graph` |
-| Qwen3 AWQ vLLM | v0.8.5 | `--quantization awq --reasoning-parser deepseek_r1 --max-model-len 16384` |
-| Qwen3 AWQ SGLang | v0.4.6 | `--quantization awq --reasoning-parser deepseek-r1 --disable-cuda-graph` |
-| MoE BF16 vLLM | v0.20.1 | `vllm serve Qwen/Qwen3-30B-A3B --no-enable-log-requests` |
-| MoE AWQ vLLM | v0.20.1 | `vllm serve ... --quantization awq_marlin --no-enable-log-requests` |
+| Engine | Version | GPU | Key Flags |
+|---|---|---|---|
+| vLLM | v0.8.5 | L4 | `--max-num-seqs 64 --gpu-mem-util 0.90` |
+| SGLang | v0.4.6 | L4 | `--max-running-req 64 --mem-frac 0.85 --disable-cuda-graph` |
+| llama.cpp | b5540 | L4 | `-np 4 --parallel 4 -ngl 99 -c 16384` |
+| vLLM AWQ | v0.8.5 | L4 | `--quantization awq --enforce-eager` |
+| SGLang AWQ | v0.4.6 | L4 | `--quantization awq --disable-cuda-graph` |
+| Qwen3 vLLM | v0.8.5 | L4 | `--reasoning-parser deepseek_r1 --max-model-len 16384` |
+| Qwen3 SGLang | v0.4.6 | L4 | `--reasoning-parser deepseek-r1 --disable-cuda-graph` |
+| Qwen3 AWQ vLLM | v0.8.5 | L4 | `--quantization awq --reasoning-parser deepseek_r1 --max-model-len 16384` |
+| Qwen3 AWQ SGLang | v0.4.6 | L4 | `--quantization awq --reasoning-parser deepseek-r1 --disable-cuda-graph` |
+| MoE BF16 vLLM | v0.20.1 | A100 80GB | `vllm serve Qwen/Qwen3-30B-A3B --no-enable-log-requests` |
+| MoE AWQ vLLM | v0.20.1 | A100 40GB | `vllm serve ... --quantization awq_marlin --no-enable-log-requests` |
+| vLLM (A100 v2) | v0.20.1 | A100 40GB | `vllm serve ... --max-num-seqs 64 --no-enable-log-requests` |
+| SGLang (A100 v2) | :latest | A100 40GB | `--max-running-req 64 --mem-frac 0.85 --disable-cuda-graph` |
 
 ### Workload Regimes
 
@@ -287,7 +289,8 @@ Already-completed configs are automatically skipped — re-running resumes from 
 | MoE benchmarks (BF16+AWQ+long) | ~2 hrs | ~$3.50 |
 | Retries (timeout fixes) | ~3 hrs | ~$0.90 |
 | A100 validation (FP16 + AWQ + Marlin) | ~0.5 hrs | ~$0.75 |
-| **Total** | **~37.5 hrs** | **~$14.75** |
+| v2 sweep (vLLM v0.20.1 + SGLang :latest, L4 + A100) | ~4 hrs | ~$5.50 |
+| **Total** | **~41.5 hrs** | **~$20.25** |
 
 ## Project Structure
 
@@ -315,10 +318,12 @@ inference-bench/
 │   └── plot_results.py            # CSV → charts
 ├── prompts/
 │   └── workload.jsonl             # 230 prompts (committed, seed=42)
+├── modal_v2_*.py              # v2 sweep scripts (vLLM v0.20.1 + SGLang :latest, L4 + A100)
 ├── results/
-│   ├── raw/                       # 102 per-request JSONL files
-│   ├── summary.jsonl              # 102 aggregated run entries
-│   ├── summary.csv                # 53 deduplicated rows
+│   ├── raw/                       # per-request JSONL files (baseline)
+│   ├── raw_v2/                    # v2 sweep JSONL files (May 2026)
+│   ├── summary.jsonl              # aggregated run entries
+│   ├── summary.csv                # deduplicated rows
 │   └── plots/                     # chart SVGs/PNGs
 ├── docs/
 │   ├── index.html                 # interactive dashboard (self-contained)

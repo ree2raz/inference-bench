@@ -755,10 +755,10 @@ td.best { color: var(--accent); font-weight: 600; }
   </div>
   <h1>vLLM vs SGLang vs llama.cpp<br><span class="thin">FP16, AWQ &amp; Reasoning on NVIDIA L4 + A100</span></h1>
   <p class="hero-sub">
-    113 benchmark runs across vLLM v0.8.5, SGLang v0.4.6, and llama.cpp on NVIDIA L4 (24 GB) and A100 GPUs via Modal.
+    125 benchmark runs across vLLM, SGLang, and llama.cpp on NVIDIA L4 (24 GB) and A100 40GB via Modal.
+    L4 baseline: vLLM v0.8.5 · SGLang v0.4.6. A100 tab: vLLM v0.20.1 · SGLang :latest (May 2026 sweep).
     Model: Qwen2.5-7B FP16 and AWQ, Qwen3-8B reasoning, Qwen3-30B-A3B MoE.
-    Concurrency 1–64. Relative engine rankings are the durable finding — absolute tok/s are lower bounds
-    (a v0.20.2 spot-check showed +28% over these v0.8.5 numbers).
+    Concurrency 1–64. L4 engine rankings are stable — v2 sweep confirmed &lt;3% drift on all SGLang and vLLM FP16 configs.
   </p>
   <p style="font-size:0.82rem;color:var(--fg-dim);margin:0.5rem 0 1.25rem;text-align:center">
     <a href="#recommendations" style="color:var(--accent)">Which engine to pick</a> &nbsp;·&nbsp;
@@ -790,7 +790,7 @@ td.best { color: var(--accent); font-weight: 600; }
     <div class="winner-block vllm_awq" style="border-top-color: var(--vllm-awq)">
       <div class="winner-label">A100 throughput king</div>
       <div class="winner-engine">vLLM Marlin (A100)</div>
-      <div class="winner-detail">2,968 tok/s @ c=64 · 3.0x L4 AWQ</div>
+      <div class="winner-detail">4,762 tok/s @ c=64 · +60% vs v0.8.5</div>
     </div>
     <div class="winner-block qwen3_awq_vllm">
       <div class="winner-label">Reasoning throughput</div>
@@ -804,10 +804,10 @@ td.best { color: var(--accent); font-weight: 600; }
 <div style="max-width:900px;margin:2.5rem auto 0;padding:1rem 1.25rem;background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:6px;font-size:0.84rem;line-height:1.75;color:var(--fg-muted)">
   <strong style="color:var(--fg)">Scope &amp; Freshness</strong>
   <span style="margin:0 0.6rem;opacity:0.3">|</span>
-  Engines tested: vLLM v0.8.5 · SGLang v0.4.6 · llama.cpp Q4_K_M.
-  Hardware: NVIDIA L4 (24 GB) and A100 40GB (dense/AWQ) · A100 80GB (MoE BF16 only) — H100 and FP8 not covered.
-  A vLLM v0.20.2 spot-check showed <strong style="color:var(--fg)">+28% absolute throughput</strong> over v0.8.5; SGLang has similarly improved since v0.4.6.
-  <strong style="color:var(--fg)">Relative rankings between engines are the durable finding. Treat absolute tok/s figures as lower bounds, not current specs.</strong>
+  L4 baseline: vLLM v0.8.5 · SGLang v0.4.6 · llama.cpp Q4_K_M.
+  A100 tab (May 2026 v2 sweep): vLLM v0.20.1 · SGLang :latest — both engines benchmarked across FP16 and AWQ Marlin.
+  Hardware: NVIDIA L4 (24 GB) · A100 40GB (dense/AWQ) · A100 80GB (MoE BF16 only) — H100 and FP8 not covered.
+  <strong style="color:var(--fg)">L4 relative rankings are the durable finding. A100 tab reflects current engine versions.</strong>
 </div>
 
 <!-- ════════ WHERE EACH WINS ════════ -->
@@ -957,27 +957,33 @@ td.best { color: var(--accent); font-weight: 600; }
 
   <div class="valid-grid" style="margin-top:1.25rem">
     <div class="valid-block">
-      <h3>Decode efficiency (Qwen2.5-7B on A100 40GB, c=1)</h3>
+      <h3>Decode efficiency (Qwen2.5-7B on A100 40GB, c=1) — v0.20.1 / :latest</h3>
       <p>A100 40GB has 5.2x more bandwidth than L4 (1,555 vs 300 GB/s). Per-stream efficiency drops because compute becomes the bottleneck.</p>
       <table class="method-card" style="width:100%;border:none;padding:0">
         <tbody>
           <tr style="border-bottom:1px solid var(--border-subtle)">
-            <td style="padding:0.4rem 0;color:var(--fg-dim);font-family:var(--font-mono);font-size:0.75rem">FP16 (vLLM v0.8.5)</td>
+            <td style="padding:0.4rem 0;color:var(--fg-dim);font-family:var(--font-mono);font-size:0.75rem">FP16 (vLLM v0.20.1)</td>
             <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right">111 tok/s</td>
-            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right;color:var(--vllm)">72.1 tok/s</td>
-            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.72rem;text-align:right;color:var(--fg-muted)">65%</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right;color:var(--vllm)">80.0 tok/s</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.72rem;text-align:right;color:var(--fg-muted)">72%</td>
           </tr>
           <tr style="border-bottom:1px solid var(--border-subtle)">
-            <td style="padding:0.4rem 0;color:var(--fg-dim);font-family:var(--font-mono);font-size:0.75rem">AWQ Marlin (vLLM v0.8.5)</td>
-            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right">444 tok/s</td>
-            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right;color:var(--vllm-awq)">104.2 tok/s</td>
-            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.72rem;text-align:right;color:var(--fg-muted)">23%</td>
+            <td style="padding:0.4rem 0;color:var(--fg-dim);font-family:var(--font-mono);font-size:0.75rem">FP16 (SGLang :latest)</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right">111 tok/s</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right;color:var(--sglang)">60.5 tok/s</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.72rem;text-align:right;color:var(--fg-muted)">54%</td>
           </tr>
           <tr style="border-bottom:1px solid var(--border-subtle)">
-            <td style="padding:0.4rem 0;color:var(--fg-dim);font-family:var(--font-mono);font-size:0.75rem">AWQ default (vLLM v0.8.5)</td>
+            <td style="padding:0.4rem 0;color:var(--fg-dim);font-family:var(--font-mono);font-size:0.75rem">AWQ Marlin (vLLM v0.20.1)</td>
             <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right">444 tok/s</td>
-            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right;color:var(--vllm-awq)">63.4 tok/s</td>
-            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.72rem;text-align:right;color:var(--fg-muted)">14%</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right;color:var(--vllm-awq)">177.3 tok/s</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.72rem;text-align:right;color:var(--fg-muted)">40%</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-subtle)">
+            <td style="padding:0.4rem 0;color:var(--fg-dim);font-family:var(--font-mono);font-size:0.75rem">AWQ Marlin (SGLang :latest)</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right">444 tok/s</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.82rem;text-align:right;color:var(--sglang-awq)">194.8 tok/s</td>
+            <td style="padding:0.4rem 0;font-family:var(--font-mono);font-size:0.72rem;text-align:right;color:var(--fg-muted)">44%</td>
           </tr>
           <tr>
             <td style="padding:0.4rem 0;color:var(--fg-dim);font-family:var(--font-mono);font-size:0.75rem"></td>
@@ -987,7 +993,7 @@ td.best { color: var(--accent); font-weight: 600; }
           </tr>
         </tbody>
       </table>
-      <p>A100 40GB's 1.55 TB/s bandwidth means the bottleneck shifts from memory to compute (attention, KV cache). Per-stream at c=64: FP16 drops to 36%, Marlin to 10%. But aggregate throughput is 3x higher than L4 (2,564 vs 831 tok/s) thanks to 10x more compute (312 vs 31 TFLOPS). All A100 40GB numbers are vLLM v0.8.5. A separate v0.20.2 spot-check on A100 80GB showed +28% over v0.8.5 — see <a href="https://github.com/ree2raz/inference-bench/blob/main/results/a100_vllm_latest_check.jsonl" style="color:var(--accent)">T4.1 results</a>.</p>
+      <p>A100 v0.20.1 vLLM FP16 hits 72% efficiency — up from 65% in v0.8.5. Marlin kernels improved dramatically: 40% in v0.20.1 vs 23% in v0.8.5. At c=64, vLLM Marlin reaches 4,762 tok/s while SGLang Marlin collapses to 2,231 tok/s — SGLang's Marlin kernel doesn't scale to high-concurrency batching on A100 the way vLLM's does.</p>
     </div>
   </div>
 </section>
@@ -1066,6 +1072,22 @@ td.best { color: var(--accent); font-weight: 600; }
       <div class="engine-ver">v0.4.6</div>
     </div>
   </div>
+  <div class="versions-row" style="margin-top:0.75rem; grid-template-columns: repeat(2, 1fr);">
+    <div class="version-item vllm">
+      <div>
+        <div class="engine-name">vLLM (A100)</div>
+        <div class="engine-flags">vllm serve · --max-num-seqs 64 · --gpu-memory-utilization 0.90 · --no-enable-log-requests</div>
+      </div>
+      <div class="engine-ver">v0.20.1</div>
+    </div>
+    <div class="version-item sglang">
+      <div>
+        <div class="engine-name">SGLang (A100)</div>
+        <div class="engine-flags">--max-running-req 64 · --mem-frac 0.85 · --disable-cuda-graph</div>
+      </div>
+      <div class="engine-ver">:latest</div>
+    </div>
+  </div>
   <div class="versions-row" style="margin-top:0.75rem; grid-template-columns: repeat(4, 1fr);">
     <div class="version-item qwen3_vllm">
       <div>
@@ -1107,7 +1129,7 @@ td.best { color: var(--accent); font-weight: 600; }
   </div>
 
   <p style="font-size:0.88rem;color:var(--fg-muted);line-height:1.7;max-width:780px;margin:0 0 1.5rem">
-    Baseline hardware is <strong style="color:var(--fg)">NVIDIA L4</strong> (24 GB, Modal, per-second billing) with <strong style="color:var(--fg)">Qwen2.5-7B-Instruct</strong>. A100 and MoE regimes use an A100 80/40 GB with a different model — see the regime note below. <strong style="color:var(--fg)">c=N</strong> means N concurrent requests in flight simultaneously. <strong style="color:var(--fg)">Throughput</strong> is aggregate tokens/sec across all concurrent streams. <strong style="color:var(--fg)">TTFT</strong> is time to first token (p50). <strong style="color:var(--fg)">Latency p95</strong> is tail end-to-end time per request. Regime definitions: <em>Short</em> ≤256 input tokens · <em>Long</em> ≤2048 · <em>Reasoning</em> ~6K thinking tokens (Qwen3-8B) · <em>A100</em> = FP16/AWQ validation on A100 40GB (v0.8.5) · <em>MoE</em> = Qwen3-30B-A3B active-param study on A100 80GB (BF16) and A100 40GB (AWQ). <a href="#methodology" style="color:var(--accent)">Full methodology →</a>
+    Baseline hardware is <strong style="color:var(--fg)">NVIDIA L4</strong> (24 GB, Modal, per-second billing) with <strong style="color:var(--fg)">Qwen2.5-7B-Instruct</strong>. A100 and MoE regimes use an A100 80/40 GB with a different model — see the regime note below. <strong style="color:var(--fg)">c=N</strong> means N concurrent requests in flight simultaneously. <strong style="color:var(--fg)">Throughput</strong> is aggregate tokens/sec across all concurrent streams. <strong style="color:var(--fg)">TTFT</strong> is time to first token (p50). <strong style="color:var(--fg)">Latency p95</strong> is tail end-to-end time per request. Regime definitions: <em>Short</em> ≤256 input tokens · <em>Long</em> ≤2048 · <em>Reasoning</em> ~6K thinking tokens (Qwen3-8B) · <em>A100</em> = vLLM v0.20.1 + SGLang :latest on A100 40GB (May 2026 sweep) · <em>MoE</em> = Qwen3-30B-A3B active-param study on A100 80GB (BF16) and A100 40GB (AWQ). <a href="#methodology" style="color:var(--accent)">Full methodology →</a>
   </p>
 
   <div class="regime-toggle">
@@ -1156,7 +1178,7 @@ td.best { color: var(--accent); font-weight: 600; }
     <li>Tool use / function calling overhead</li>
     <li>Two GPU classes only (L4, A100) — other GPUs untested</li>
     <li>Fixed model set (Qwen2.5-7B, Qwen3-8B)</li>
-    <li>A100 benchmarks are N=1 per config (validation runs, not full suite)</li>
+    <li>A100 benchmarks are N=1 per config (validation runs, not full suite) — SGLang Marlin c=64 collapse is a single data point</li>
     <li>Greedy decoding only (temp=0)</li>
     <li>llama.cpp non-streaming (no TTFT/TPOT)</li>
     <li>Quantization not at parity (Q4 vs FP16)</li>
@@ -1165,7 +1187,7 @@ td.best { color: var(--accent); font-weight: 600; }
 
 <!-- ════════ FOOTER ════════ -->
 <div class="footer">
-  <span>Apache 2.0 · Qwen2.5-7B + Qwen3-8B · NVIDIA L4 + A100 via Modal</span>
+  <span>Apache 2.0 · Qwen2.5-7B + Qwen3-8B · NVIDIA L4 + A100 via Modal · 125 runs</span>
   <a href="https://github.com/ree2raz/inference-bench">github.com/ree2raz/inference-bench</a>
   <span style="opacity:0.7">·</span>
   <span>Feedback: <a href="https://www.linkedin.com/in/ree2raz/">LinkedIn DM</a> or <a href="mailto:ree2raz@proton.me">ree2raz@proton.me</a></span>
@@ -1284,21 +1306,27 @@ const DATA = {
   a100: {
     concurrencies: [1, 16, 64],
     vllm_fp16: {
-      throughput: [72.1, 950.1, 2563.7],
-      ttft: [24, 94, 410],
-      latency_p95: [1962, 2001, 2679],
+      throughput: [80.0, 1094.4, 3101.8],
+      ttft: [25, 73, 174],
+      latency_p95: [1602, 1690, 2148],
       success: [100, 100, 100],
     },
-    vllm_awq: {
-      throughput: [63.4, 810.5, 2011.3],
-      ttft: [25, 145, 469],
-      latency_p95: [2118, 2303, 3715],
+    sglang_fp16: {
+      throughput: [60.5, 829.4, 2140.5],
+      ttft: [38, 76, 602],
+      latency_p95: [2211, 2224, 3195],
       success: [100, 100, 100],
     },
     vllm_marlin: {
-      throughput: [104.2, 1623.6, 2967.9],
-      ttft: [23, 115, 530],
-      latency_p95: [1352, 1191, 2447],
+      throughput: [177.3, 2248.0, 4761.6],
+      ttft: [19, 59, 171],
+      latency_p95: [721, 831, 1514],
+      success: [100, 100, 100],
+    },
+    sglang_marlin: {
+      throughput: [194.8, 2324.6, 2230.7],
+      ttft: [20, 63, 160],
+      latency_p95: [654, 801, 2923],
       success: [100, 100, 100],
     },
   },
@@ -1327,7 +1355,7 @@ const DATA = {
 
 const SHORT_LONG_ENGINES = ['vllm', 'vllm_awq', 'sglang', 'sglang_awq', 'llamacpp'];
 const REASONING_ENGINES = ['qwen3_vllm', 'qwen3_awq_vllm', 'qwen3_sglang', 'qwen3_awq_sglang'];
-const A100_ENGINES = ['vllm_fp16', 'vllm_awq', 'vllm_marlin'];
+const A100_ENGINES = ['vllm_fp16', 'sglang_fp16', 'vllm_marlin', 'sglang_marlin'];
 const MOE_ENGINES = ['moe_bf16', 'moe_awq', 'moe_awq_long'];
 
 const ENGINE_COLORS = {
@@ -1341,7 +1369,9 @@ const ENGINE_COLORS = {
   qwen3_awq_vllm: { line: '#a78bfa', bg: 'rgba(167,139,250,0.12)', point: '#c4b5fd' },
   qwen3_awq_sglang: { line: '#fdba74', bg: 'rgba(253,186,116,0.12)', point: '#fed7aa' },
   vllm_fp16: { line: '#3b82f6', bg: 'rgba(59,130,246,0.12)', point: '#60a5fa' },
+  sglang_fp16: { line: '#ef4444', bg: 'rgba(239,68,68,0.12)', point: '#f87171' },
   vllm_marlin: { line: '#60a5fa', bg: 'rgba(96,165,250,0.12)', point: '#93c5fd' },
+  sglang_marlin: { line: '#fca5a5', bg: 'rgba(252,165,165,0.12)', point: '#fecaca' },
   moe_bf16: { line: '#c87533', bg: 'rgba(200,117,51,0.12)', point: '#d4945c' },
   moe_awq: { line: '#e6984a', bg: 'rgba(230,152,74,0.12)', point: '#edb473' },
   moe_awq_long: { line: '#d4a76a', bg: 'rgba(212,167,106,0.12)', point: '#e0c08a' },
@@ -1350,7 +1380,7 @@ const ENGINE_COLORS = {
 const ENGINE_NAMES = {
   vllm: 'vLLM', vllm_awq: 'vLLM AWQ', sglang: 'SGLang', sglang_awq: 'SGLang AWQ', llamacpp: 'llama.cpp',
   qwen3_vllm: 'Qwen3 vLLM', qwen3_awq_vllm: 'Qwen3 AWQ vLLM', qwen3_sglang: 'Qwen3 SGLang', qwen3_awq_sglang: 'Qwen3 AWQ SGLang',
-  vllm_fp16: 'vLLM FP16 (A100)', vllm_marlin: 'vLLM AWQ Marlin (A100)',
+  vllm_fp16: 'vLLM FP16 (A100)', sglang_fp16: 'SGLang FP16 (A100)', vllm_marlin: 'vLLM Marlin (A100)', sglang_marlin: 'SGLang Marlin (A100)',
   moe_bf16: 'Qwen3-30B-A3B BF16 (A100)',
   moe_awq: 'Qwen3-30B-A3B AWQ (A100)',
   moe_awq_long: 'Qwen3-30B-A3B AWQ 16K (A100)',
@@ -1376,9 +1406,10 @@ function getEngineOrder(regime) {
 }
 
 const A100_ENGINE_NAMES = {
-  vllm_fp16: 'vLLM FP16 (A100)',
-  vllm_awq: 'vLLM AWQ (A100)',
-  vllm_marlin: 'vLLM AWQ Marlin (A100)',
+  vllm_fp16: 'vLLM FP16 (A100, v0.20.1)',
+  sglang_fp16: 'SGLang FP16 (A100, :latest)',
+  vllm_marlin: 'vLLM AWQ Marlin (A100, v0.20.1)',
+  sglang_marlin: 'SGLang AWQ Marlin (A100, :latest)',
 };
 
 function getEngineName(regime, engine) {
