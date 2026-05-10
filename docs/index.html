@@ -817,29 +817,43 @@ td.best { color: var(--accent); font-weight: 600; }
     <p>The bottom line — which engine to pick for your use case, backed by the data.</p>
   </div>
 
+  <div style="background:var(--bg-raised);border:1px solid var(--border);border-left:3px solid var(--vllm);border-radius:6px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:0.88rem;line-height:1.75">
+    <strong style="color:var(--vllm)">Production default: vLLM</strong>
+    <span style="margin:0 0.6rem;opacity:0.3">|</span>
+    <span style="color:var(--fg-muted)">
+      Wins on 7 of 10 measured dimensions — including every A100 config, AWQ quantization, TTFT, and reasoning workloads.
+      The one exception: L4 FP16 at high concurrency (c=64), where SGLang leads by +10%.
+      If you're on A100 or using AWQ, vLLM is the stronger choice across the board.
+      The v2 sweep (vLLM v0.20.1 vs SGLang :latest, May 2026) confirmed and widened this finding.
+    </span>
+  </div>
+
   <div class="method-grid">
     <div class="method-card vllm" style="border-top: 2px solid var(--vllm)">
-      <h3 style="color: var(--vllm)">vLLM</h3>
+      <h3 style="color: var(--vllm)">vLLM — production default</h3>
       <p style="font-size: 0.85rem; color: var(--fg-muted); line-height: 1.6;">
-        Lowest TTFT for single-request workloads (70 ms at c=1). Best choice when 
-        latency-sensitive individual responses matter more than aggregate throughput — 
-        interactive chatbots, real-time assistants.
+        Leads on A100 at all concurrencies (+32–45% FP16, +113% Marlin at c=64).
+        Lowest TTFT on L4 (70 ms vs 119 ms, 42% faster). AWQ delivers 2.5x throughput
+        at 1/3 VRAM with no meaningful downside. Reasoning workloads 4.3x faster
+        with AWQ. Default for any production deployment on A100 or with quantization.
       </p>
     </div>
     <div class="method-card sglang" style="border-top: 2px solid var(--sglang)">
-      <h3 style="color: var(--sglang)">SGLang</h3>
+      <h3 style="color: var(--sglang)">SGLang — L4 FP16 throughput</h3>
       <p style="font-size: 0.85rem; color: var(--fg-muted); line-height: 1.6;">
-        Highest throughput at every concurrency level. Best for batched workloads, 
-        API serving, and high-concurrency production deployments. Radix attention 
-        provides consistent TPOT (~60–70 ms) across concurrency levels.
+        Leads L4 FP16 aggregate throughput at high concurrency (914 vs 831 tok/s at c=64, +10%).
+        On A100, vLLM outperforms SGLang at all concurrency levels — the L4 pattern reverses
+        on higher-tier GPUs. Best fit: budget GPU (L4/A10G), FP16 only, throughput-first workloads
+        where AWQ checkpoints don't exist.
       </p>
     </div>
     <div class="method-card llamacpp" style="border-top: 2px solid var(--llamacpp)">
-      <h3 style="color: var(--llamacpp)">llama.cpp</h3>
+      <h3 style="color: var(--llamacpp)">llama.cpp — edge and dev</h3>
       <p style="font-size: 0.85rem; color: var(--fg-muted); line-height: 1.6;">
-        Fastest single-request latency and smallest footprint. Best for 
-        resource-constrained environments (edge, embedded, CPU-only), development/testing, 
-        and low-concurrency use cases. Q4_K_M runs in ~4.4 GB VRAM vs ~14.2 GB FP16.
+        Fastest single-request E2E latency (2.7 s vs 7 s FP16) and smallest footprint (4.4 GB VRAM).
+        Best for edge, embedded, CPU-only, and development environments.
+        Throughput caps at ~190 tok/s at c=64 and success rate drops to 55% on long contexts.
+        Not suited for production API serving above c=4.
       </p>
     </div>
   </div>
@@ -854,9 +868,9 @@ td.best { color: var(--accent); font-weight: 600; }
 
   <ol class="findings-list">
     <li>
-      <h4>SGLang leads throughput; vLLM leads first-token latency</h4>
-      <p>At c=64 short, SGLang hits 914 tok/s vs vLLM's 831 tok/s (+10%). But at c=1, vLLM's TTFT is 70 ms vs SGLang's 119 ms (42% faster first token). The tradeoff: SGLang for aggregate throughput, vLLM for interactive responsiveness. Both maintain ~13-17 tok/s per-request regardless of concurrency, confirming effective continuous batching.</p>
-      <p style="font-size:0.82rem;margin-top:0.5rem"><strong style="color:var(--accent)">When this matters:</strong> <span style="color:var(--fg-muted)">User-facing chatbots and copilots → vLLM. Background API serving, batch summarization, high-concurrency pipelines → SGLang.</span></p>
+      <h4>SGLang leads L4 FP16 throughput; vLLM leads everywhere else</h4>
+      <p>On L4, SGLang hits 914 tok/s vs vLLM's 831 tok/s at c=64 (+10% FP16). But at c=1, vLLM's TTFT is 70 ms vs SGLang's 119 ms (42% faster). The L4 pattern reverses completely on A100: vLLM v0.20.1 outperforms SGLang :latest at every concurrency — 80 vs 61 tok/s at c=1 (+32%), 3,102 vs 2,141 tok/s at c=64 (+45%). SGLang's L4 FP16 advantage is narrow and GPU-class-specific.</p>
+      <p style="font-size:0.82rem;margin-top:0.5rem"><strong style="color:var(--accent)">When this matters:</strong> <span style="color:var(--fg-muted)">On A100+ → vLLM for both throughput and latency. On L4 FP16 at high concurrency → SGLang has a narrow +10% edge. L4 AWQ → vLLM by 2x.</span></p>
     </li>
     <li>
       <h4>AWQ quantization on vLLM is a free lunch</h4>
@@ -877,6 +891,11 @@ td.best { color: var(--accent); font-weight: 600; }
       <h4>Long regime amplifies every difference</h4>
       <p>At c=64 long, SGLang's 840 tok/s is 8% faster than vLLM's 777 tok/s, with 9% lower p95 latency (40 s vs 44 s). llama.cpp drops to 55% success. Longer sequences stress KV cache management, batching efficiency, and memory bandwidth — making engine choice more consequential.</p>
       <p style="font-size:0.82rem;margin-top:0.5rem"><strong style="color:var(--accent)">When this matters:</strong> <span style="color:var(--fg-muted)">RAG pipelines, document summarization, long-context chat. Engine choice matters more at long context — the gap between engines widens as sequence length grows.</span></p>
+    </li>
+    <li>
+      <h4>On A100, vLLM dominates SGLang — the L4 ranking reverses</h4>
+      <p>The May 2026 v2 sweep (vLLM v0.20.1 vs SGLang :latest) found a GPU-class pattern reversal. On L4 FP16, SGLang leads at c=64 (+10%). On A100, vLLM leads at every concurrency: +32% at c=16, +45% FP16 at c=64. The gap widens with Marlin quantization: vLLM Marlin hits 4,762 tok/s at c=64 while SGLang Marlin collapses to 2,231 tok/s (vLLM 2.1x ahead). Likely cause: SGLang's batch scheduler and Marlin kernel don't scale as efficiently to A100's higher memory bandwidth and compute headroom. v0.20.1 also improved Marlin performance significantly — 177 tok/s at c=1 vs 104 tok/s in v0.8.5 (+70%).</p>
+      <p style="font-size:0.82rem;margin-top:0.5rem"><strong style="color:var(--accent)">When this matters:</strong> <span style="color:var(--fg-muted)">If your production GPU is A100 (or H100), vLLM is clearly the stronger choice — especially with AWQ Marlin. The L4 benchmark results don't predict A100 engine rankings.</span></p>
     </li>
     <li>
       <h4>MoE decode tracks active parameters, not total — but expert routing has overhead</h4>
